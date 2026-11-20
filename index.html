@@ -16,7 +16,7 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath fill='%235b4fe9' d='M16 1.5C9.1 1.5 3.6 6.9 3.6 13.6 3.6 22.4 16 30.5 16 30.5S28.4 22.4 28.4 13.6C28.4 6.9 22.9 1.5 16 1.5Z'/%3E%3Cpath fill='%23fff' d='M8.2 13.6C10.2 10.4 13 8.8 16 8.8S21.8 10.4 23.8 13.6C21.8 16.8 19 18.4 16 18.4S10.2 16.8 8.2 13.6Z'/%3E%3Ccircle cx='16' cy='13.6' r='3.3' fill='%234338ca'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
 <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
-<script src="data.js?v=6.3"></script>
+<script src="data.js?v=6.4"></script>
 <style>
 :root{--bg:#f7f3ec;--panel:#fff;--panel2:#f3ede4;--line:#e6ddd0;--text:#241F20;--muted:#6b5f55;--brand:#A5022F;--brand-t:#A5022F;--brand2:#991A36;--brand-soft:#f8e6ea;--brand-ink:#7d0224;--tan:#D0BC9B;--wood:#A66648;
  --demand:#A66648;--supply:#0072B2;--cost:#9a7b00;--up:#047857;--up-bg:#e7f6ef;--down:#b4410e;--down-bg:#fdeee6;--flat-bg:#efe9e0;--warn:#9a3412;--warn-bg:#fff4ec;
@@ -335,13 +335,38 @@ details.sec>div{padding:0 14px 12px}
 .spill.on{padding-right:4px}
 .spill .sx{position:relative;z-index:2;margin-left:2px}
 .spill:focus-within{outline:3px solid var(--tan);outline-offset:2px}
-/* v6.3 scope control floats on the map, under the layer chips */
-.mapscope{position:absolute;top:54px;left:calc(8px + var(--sal,0px));z-index:4;display:none;max-width:calc(100% - 16px - var(--sal,0px));min-width:0;pointer-events:none;margin:0}
+/* v6.4 scope selector sits beside Legend (same pill: height, padding, radius, font, background, shadow) */
+.mapbl{position:absolute;left:calc(8px + var(--sal,0px));bottom:8px;z-index:4;display:flex;align-items:center;gap:6px;max-width:calc(100% - 72px - var(--sal,0px));min-width:0;pointer-events:none}
+.mapbl .legbtn{position:relative;left:auto;bottom:auto;flex:none;pointer-events:auto}
+.mapscope{position:static;display:none;min-width:0;flex:0 1 auto;margin:0;pointer-events:none}
 body[data-sv="1"] .mapscope{display:flex}
-.mapscope .spill{pointer-events:auto;min-height:44px;background:color-mix(in srgb,var(--panel) 92%,transparent);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);box-shadow:var(--shadow);font-size:13.5px}
-.mapscope .spill.on{background:color-mix(in srgb,var(--brand) 30%,var(--panel));border-color:var(--brand)}
-.mapscope .spill .sx{width:32px;height:32px}
+.mapscope .spill{pointer-events:auto;gap:6px;min-height:36px;padding:0 11px;border-radius:999px;border:1px solid var(--line);background:color-mix(in srgb,var(--panel) 92%,transparent);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);font-size:12.5px;font-weight:600;box-shadow:var(--shadow);color:var(--text)}
+.mapscope .spill b{font-weight:600}
+.mapscope .spill .ico{width:14px;height:14px}
+.mapscope .spill.on{padding-right:4px;border-color:var(--brand);background:color-mix(in srgb,var(--brand) 26%,var(--panel))}
+.mapscope .spill .sx{width:26px;height:26px}.mapscope .spill .sx .ico{width:12px;height:12px}
+.mapscope .spill .stpick{inset:-4px 0;height:calc(100% + 8px)}
 .dr.key{margin-top:10px}
+/* v6.4 Stores ▾ dropdown */
+.stdd{left:8px;right:auto}
+.stbtn .n{background:var(--brand);color:#fff;border-radius:999px;padding:0 6px;font-size:11px;font-weight:800}
+.stbtn[aria-pressed=false]{opacity:1}
+/* v6.4 chip row fits one line on phones: colour dots live in Legend; shorter labels on the narrowest screens */
+.chip .ls{display:none}
+@media(max-width:600px){#chips,.chiprow{gap:5px}#chips .chip{padding:0 9px;gap:4px}#chips .chiprow .chip:not(.stbtn) .sw,#chips .chiprow .chip .sw2,#chips .cmpbtn svg{display:none}}
+@media(max-width:430px){.chip .lf{display:none}.chip .ls{display:inline}}
+/* v6.4 Compare panel brand dropdown (synced with Compare ▾ on the map) */
+.pdd{flex:1;min-width:0}
+.pddbtn{width:100%;display:flex;align-items:center;gap:8px;min-height:44px;padding:0 12px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--text);font:inherit;font-size:13.5px;font-weight:600;cursor:pointer;text-align:left}
+.pddbtn .ico{color:var(--brand-t);width:16px;height:16px;flex:none}
+.pddbtn .pl{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pddbtn .n{flex:none;background:var(--brand);color:#fff;border-radius:999px;padding:0 7px;font-size:11px;font-weight:800}
+.pddbtn .car{flex:none;color:var(--muted);font-size:11px;transition:transform .2s}
+.pdd.on .pddbtn .car{transform:rotate(180deg)}
+.pddlist{display:none}
+.pdd.on .pddlist{display:block;margin-top:6px;border:1px solid var(--line);border-radius:12px;background:var(--panel);padding:6px}
+.pddlist h4{margin:8px 10px 4px;font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted)}
+.pddlist .note{padding:4px 10px 8px;margin:0}
 </style>
 </head>
 <body>
@@ -389,10 +414,10 @@ body[data-sv="1"] .mapscope{display:flex}
   <div id="map" role="region" aria-label="Map"></div>
   <div class="mskel" id="mskel" aria-hidden="true"></div>
   <div class="chips" id="chips" role="toolbar" aria-label="Map layers"></div>
-  <div class="scopebar mapscope" id="mapScope" role="status" aria-live="polite"></div>
-  <button class="chip legbtn" id="legBtn" aria-expanded="false">Legend</button>
+  <div class="mapbl"><button class="chip legbtn" id="legBtn" aria-expanded="false">Legend</button><div class="scopebar mapscope" id="mapScope" role="status" aria-live="polite"></div></div>
   <div class="legend" id="legend"></div>
   <div class="cmpdd" id="cmpdd" role="dialog" aria-label="Compare brands"></div>
+  <div class="cmpdd stdd" id="stdd" role="dialog" aria-label="Store status"></div>
   <div class="rcard" id="rcard" role="dialog" aria-label="Rival location"></div>
 </div>
 <script>
@@ -505,9 +530,14 @@ let hlGJ=FC([]),focusGJ=FC([]),nearGJ=FC([]),ringGJ=FC([]),selGJ=FC([]);
 const LAYERS={stores:{label:"Stores",sw:`<img class="sw" src="${BADGE}" alt="">`,ids:["st-cluster","st-count","st-horns"]},
  recs:{label:"Prospects",sw:`<i class="sw" style="border-radius:50%;border:2px solid var(--rec);background:rgba(165,2,47,.35)"></i>`,ids:["rec-all"]},
  ann:{label:"Pipeline",sw:`<img class="sw" src="${svgURL(ANN_SVG)}" alt="">`,ids:["ann"]},
- hl:{label:"Over capacity",sw:`<i class="sw" style="border-radius:50%;border:3px solid #E69F00"></i>`,ids:["hl"]},
- near:{label:"Rivals ≤25 km",sw:`<i class="sw" style="border-radius:50%;background:conic-gradient(#E69F00 0 25%,#CC79A7 0 50%,#56B4E9 0 75%,#0072B2 0)"></i>`,ids:["near-pt","rings"]}};
+ hl:{label:"Over capacity",short:"Over cap.",sw:`<i class="sw" style="border-radius:50%;border:3px solid #E69F00"></i>`,ids:["hl"]},
+ near:{label:"Rivals ≤25 km",short:"Rivals",sw:`<i class="sw" style="border-radius:50%;background:conic-gradient(#E69F00 0 25%,#CC79A7 0 50%,#56B4E9 0 75%,#0072B2 0)"></i>`,ids:["near-pt","rings"]}};
 const on={stores:1,recs:1,ann:0,hl:0,near:0};
+/* v6.4 store status filter (Stores ▾): open stores + pipeline stages; one setting shared by every view */
+const STF=(()=>{try{const v=JSON.parse(sessionStorage.getItem("ssStf")||"null");if(v)return {open:!!v.open,stages:new Set(v.stages)};}catch(_){}return {open:true,stages:new Set([0,1,2,3])};})();
+function saveStf(){try{sessionStorage.setItem("ssStf",JSON.stringify({open:STF.open,stages:[...STF.stages]}));}catch(_){}}
+const STG_N=[0,0,0,0];D.announced.forEach(a=>STG_N[stage(a.status)]++);
+function applyStf(){on.stores=STF.open?1:0;on.ann=STF.stages.size?1:0;if(map.getLayer("ann"))map.setFilter("ann",["in",["get","st"],["literal",[...STF.stages]]]);}
 const CMP=new Set(JSON.parse(sessionStorage.getItem("ssCmp")||"[]"));
 const saveCmp=()=>sessionStorage.setItem("ssCmp",JSON.stringify([...CMP]));
 function rasterize(img,w=64,h=64){const c=document.createElement("canvas");c.width=w;c.height=h;const x=c.getContext("2d");x.drawImage(img,0,0,w,h);return x.getImageData(0,0,w,h);}
@@ -548,7 +578,7 @@ async function addLayers(){
   map.addLayer({id:"ann",type:"symbol",source:"ann",layout:{"icon-image":"anntri","icon-size":["interpolate",["linear"],["zoom"],3,.7,10,1],"icon-allow-overlap":true}});
   syncLayers();
 }
-function syncLayers(){for(const [k,L] of Object.entries(LAYERS))for(const id of L.ids)if(map.getLayer(id))map.setLayoutProperty(id,"visibility",on[k]?"visible":"none");
+function syncLayers(){applyStf();for(const [k,L] of Object.entries(LAYERS))for(const id of L.ids)if(map.getLayer(id))map.setLayoutProperty(id,"visibility",on[k]?"visible":"none");
   CODES.forEach(c=>["cl","n","pt"].forEach(t=>{const id=`c-${c}-${t}`;if(map.getLayer(id))map.setLayoutProperty(id,"visibility",CMP.has(c)&&cur==="compete"?"visible":"none");}));
   $$("#chips .chip[data-l]").forEach(b=>b.setAttribute("aria-pressed",!!on[b.dataset.l]));
   const cb=$("#chips .cmpbtn");if(cb)cb.innerHTML=`${ic("rival")}Compare${CMP.size?` <span class="n">${CMP.size}</span>`:""} ▾`;if(typeof renderLegend==="function")renderLegend();}
@@ -582,13 +612,25 @@ function showRival(j){const x=D.comps[j],c=CB[x[0]],t=S[x[6]];popup.remove();
 function hideRival(){$("#rcard").classList.remove("on");}
 /* chips + compare dropdown */
 let chipSet=[];
-function renderChips(keys){chipSet=keys;$("#chips").innerHTML=`<div class="chiprow">${keys.map(k=>`<button class="chip" data-l="${k}" aria-pressed="${!!on[k]}">${LAYERS[k].sw}${LAYERS[k].label}</button>`).join("")}</div><button class="chip cmpbtn" aria-haspopup="dialog" aria-expanded="${$("#cmpdd").classList.contains("on")}"></button>`;syncLayers();}
-$("#chips").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;if(b.classList.contains("cmpbtn")){toggleDD();return;}on[b.dataset.l]=on[b.dataset.l]?0:1;syncLayers();});
+function renderChips(keys){chipSet=keys;keys=keys.filter(k=>k!=="stores"&&k!=="ann");const nOn=(STF.open?1:0)+STF.stages.size;
+  $("#chips").innerHTML=`<div class="chiprow"><button class="chip stbtn" aria-haspopup="dialog" aria-expanded="${$("#stdd").classList.contains("on")}" aria-pressed="${nOn>0}">${LAYERS.stores.sw}Stores${nOn<5?` <span class="n">${nOn}</span>`:""} ▾</button>${keys.map(k=>`<button class="chip" data-l="${k}" aria-pressed="${!!on[k]}">${LAYERS[k].sw}${LAYERS[k].short?`<span class="lf">${LAYERS[k].label}</span><span class="ls">${LAYERS[k].short}</span>`:LAYERS[k].label}</button>`).join("")}</div><button class="chip cmpbtn" aria-haspopup="dialog" aria-expanded="${$("#cmpdd").classList.contains("on")}"></button>`;syncLayers();}
+$("#chips").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;if(b.classList.contains("cmpbtn")){toggleStDD(false);toggleDD();return;}if(b.classList.contains("stbtn")){toggleDD(false);toggleStDD();return;}on[b.dataset.l]=on[b.dataset.l]?0:1;syncLayers();});
 function ddHTML(){const grp=(g,t)=>`<h4>${t}</h4>`+CODES.filter(c=>CB[c].group===g).map(c=>`<label class="cbx"><input type="checkbox" value="${c}" ${CMP.has(c)?"checked":""}><span class="sw2" style="background:${CB[c].col}"></span>${esc(CB[c].short)}<em>${fmt(CB[c].n)}</em></label>`).join("");
-  return grp("steak","Steakhouses")+grp("casual","Casual dining")+`<p class="note">Locations: All the Places (brand store locators). ${esc(D.comp_unavailable.join(" and "))} returned no data in the latest run, so they're not listed.</p><div style="display:flex;gap:6px;padding:0 6px 6px"><button class="btn" id="ddClear" style="flex:1">Clear</button><button class="btn primary" id="ddDone" style="flex:1">Done</button></div>`;}
+  return grp("steak","Steakhouses")+grp("casual","Casual dining")+`<p class="note">Locations: All the Places (brand store locators). ${esc(D.comp_unavailable.join(" and "))} returned no data in the latest run, so they're not listed.</p><div style="display:flex;gap:6px;padding:0 6px 6px"><button class="btn" data-dd="clear" style="flex:1">Clear</button><button class="btn primary" data-dd="done" style="flex:1">Done</button></div>`;}
+/* bind a brand checklist (map dropdown or Compare panel dropdown); both write CMP, so they stay in sync */
+function bindBrandDD(root,close){root.querySelectorAll("input[type=checkbox]").forEach(i=>i.onchange=()=>{i.checked?CMP.add(i.value):CMP.delete(i.value);cmpChanged();});
+  const c=root.querySelector('[data-dd="clear"]');if(c)c.onclick=()=>{CMP.clear();root.querySelectorAll("input").forEach(i=>i.checked=false);cmpChanged();};
+  const d=root.querySelector('[data-dd="done"]');if(d)d.onclick=close;}
+function stddHTML(){const row=(attr,chk,sw,lab,n)=>`<label class="cbx"><input type="checkbox" ${attr} ${chk?"checked":""}>${sw}${lab}<em>${fmt(n)}</em></label>`;
+  return `<h4>Open</h4>${row('data-st="open"',STF.open,`<img class="sw" src="${BADGE}" alt="" style="width:16px;height:16px">`,"Open stores",S.length)}
+  <h4>Upcoming (pipeline)</h4>${STAGES.map(([l,c],k)=>row(`data-stg="${k}"`,STF.stages.has(k),`<span class="sw2" style="background:${c}"></span>`,l,STG_N[k])).join("")}
+  <p class="note">Open stores: Texas Roadhouse store locator. Upcoming: company releases and local news (sources in Stores).</p><div style="display:flex;gap:6px;padding:0 6px 6px"><button class="btn primary" data-dd="done" style="flex:1">Done</button></div>`;}
+function toggleStDD(o){const el=$("#stdd"),open=o??!el.classList.contains("on");if(open)el.innerHTML=stddHTML();el.classList.toggle("on",open);const b=$("#chips .stbtn");if(b)b.setAttribute("aria-expanded",open);
+  if(open){el.querySelectorAll("input").forEach(i=>i.onchange=()=>{if(i.dataset.st)STF.open=i.checked;else{const k=+i.dataset.stg;i.checked?STF.stages.add(k):STF.stages.delete(k);}stfChanged();});el.querySelector('[data-dd="done"]').onclick=()=>toggleStDD(false);}}
+function stfChanged(){saveStf();syncLayers();if(chipSet.length)renderChips(chipSet);const b=$("#chips .stbtn");if(b)b.setAttribute("aria-expanded",$("#stdd").classList.contains("on"));if(cur==="health")hRender();}
 function toggleDD(o){const el=$("#cmpdd"),open=o??!el.classList.contains("on");if(open)el.innerHTML=ddHTML();el.classList.toggle("on",open);const b=$("#chips .cmpbtn");if(b)b.setAttribute("aria-expanded",open);
-  if(open){el.querySelectorAll("input").forEach(i=>i.onchange=()=>{i.checked?CMP.add(i.value):CMP.delete(i.value);cmpChanged();});$("#ddClear").onclick=()=>{CMP.clear();el.querySelectorAll("input").forEach(i=>i.checked=false);cmpChanged();};$("#ddDone").onclick=()=>toggleDD(false);}}
-function cmpChanged(){saveCmp();syncLayers();if(cur!=="compete"&&CMP.size){location.hash="#/compete";return;}if(cur==="compete")cmDraw();}
+  if(open)bindBrandDD(el,()=>toggleDD(false));}
+function cmpChanged(){saveCmp();syncLayers();if($("#cmpdd").classList.contains("on"))$("#cmpdd").querySelectorAll("input[type=checkbox]").forEach(i=>i.checked=CMP.has(i.value));if(cur!=="compete"&&CMP.size){location.hash="#/compete";return;}if(cur==="compete")cmDraw();}
 function fitComp(){const pts=[];D.comps.forEach(x=>{if(CMP.has(x[0]))pts.push([x[2],x[1]]);});if(pts.length>40)fitUS();else if(pts.length)fitPts(pts,9);}
 $("#legBtn").addEventListener("click",()=>{renderLegend();const o=$("#legend").classList.toggle("on");$("#legBtn").setAttribute("aria-expanded",o);});
 function pad(p=30){return isDesk()?{top:p+50,bottom:p,left:p,right:p+50}:{top:p+40,bottom:p,left:p/2,right:p/2+40};}
@@ -801,14 +843,15 @@ const HS={seg:"top",st:"",q:"",lim:15};
 const STATES=[...new Set(S.map(s=>s.s))].sort();
 function hsSet(){return SS.map(i=>[S[i],i]).filter(([s])=>(!HS.q||(s.n+" "+s.c).toLowerCase().includes(HS.q.toLowerCase())));}
 let HSEG="stores";
-function vHealth(el){el.innerHTML=`${scopeBar(seg("stSeg",[["stores","Stores"],["pipeline","Pipeline"]],HSEG))}<div id="hsWrap"></div>`;
-  $("#stSeg").onclick=e=>{const b=e.target.closest("button");if(!b)return;location.hash=b.dataset.k==="pipeline"?"#/health/pipeline":"#/health";};hRender();}
-function hRender(){const w=$("#hsWrap");if(!w)return;$$("#stSeg button").forEach(x=>x.setAttribute("aria-pressed",x.dataset.k===HSEG));
-  if(HSEG==="pipeline"){w.innerHTML=`<div id="plB"></div>`;plDraw();return;}
-  w.innerHTML=drawer("health","key","Key numbers",`<div id="hsK"></div>`,{key:1,open:1})+drawer("health","lists","Store lists",`<div class="filters"><input id="hsQ" type="search" placeholder="Search stores" aria-label="Search stores by name or city"></div>${seg("hsSeg",[["top","Top rated"],["low","Lowest"],["age","Low reviews for age"],["mkt","Markets"]],HS.seg)}<div id="hsL"></div>`);
+function vHealth(el){el.innerHTML=`<div id="hsWrap"></div>`;hRender();}
+/* v6.4: what the Stores tab shows follows Stores ▾ on the map (open stores and/or upcoming pipeline stages) */
+function hRender(){const w=$("#hsWrap");if(!w)return;const up=STF.stages.size>0;
+  if(!STF.open&&!up){w.innerHTML=`<div class="card empty"><b>Nothing selected</b><span>Turn on Open stores or an Upcoming stage in Stores ▾ on the map.</span><button class="btn primary" data-stall>Show all</button></div>`;w.querySelector("[data-stall]").onclick=()=>{STF.open=true;STF.stages=new Set([0,1,2,3]);stfChanged();};return;}
+  if(!STF.open){w.innerHTML=`<div id="plB"></div>`;plDraw();return;}
+  w.innerHTML=drawer("health","key","Key numbers",`<div id="hsK"></div>`,{key:1,open:1})+drawer("health","lists","Store lists",`<div class="filters"><input id="hsQ" type="search" placeholder="Search stores" aria-label="Search stores by name or city"></div>${seg("hsSeg",[["top","Top rated"],["low","Lowest"],["age","Low reviews for age"],["mkt","Markets"]],HS.seg)}<div id="hsL"></div>`)+(up?`<div id="plB"></div>`:"");
   $("#hsQ").value=HS.q;$("#hsQ").oninput=e=>{HS.q=e.target.value;HS.lim=15;hsDraw();};
   $("#hsSeg").onclick=e=>{const b=e.target.closest("button");if(!b)return;HS.seg=b.dataset.k;HS.lim=15;$$("#hsSeg button").forEach(x=>x.setAttribute("aria-pressed",x===b));hsDraw();};
-  hsDraw();}
+  hsDraw();if(up)plDraw();}
 function hsDraw(){const set=hsSet(),r=set.filter(([s])=>s.r!=null),rs=r.map(([s])=>s.r);
   const avg=rs.length?rs.reduce((a,b)=>a+b,0)/rs.length:null,hist=[4.1,4.2,4.3,4.4,4.5].map((v,k)=>rs.filter(x=>rcls(x)===k).length);
   if(!SS.length){$("#hsK").innerHTML=emptyCard();$("#hsL").innerHTML="";updateScopeUI();return;}
@@ -831,10 +874,9 @@ function hsDraw(){const set=hsSet(),r=set.filter(([s])=>s.r!=null),rs=r.map(([s]
    ${HS.seg==="age"?`<p class="note">Review count vs what a store of its age (store-number vintage) typically has. Low values can mean lower traffic or a newer store than its number suggests.</p>`:""}
    ${!list.length?`<p class="note">No stores match.</p>`:""}`;
   $("#hsL").innerHTML=html;if($("#hsMore"))$("#hsMore").onclick=()=>{HS.lim+=20;hsDraw();};}
-function eHealth(param){const ns=param==="pipeline"?"pipeline":"stores",ch=ns!==HSEG;HSEG=ns;
-  if(HSEG==="pipeline"){Object.assign(on,{stores:1,recs:0,ann:1,hl:0,near:0});renderChips(["ann","stores","recs"]);}else{Object.assign(on,{stores:1,recs:0,ann:0,hl:0,near:0});renderChips(["stores","ann"]);}
-  syncLayers();maybeFit();if(ch||!$("#hsWrap").children.length)hRender();else HSEG==="pipeline"?plDraw():hsDraw();$("#vtitle").textContent=HSEG==="pipeline"?"Stores · Pipeline":"Stores";}
-SCOPED.health=()=>{if(HSEG==="pipeline")plDraw();else{HS.lim=15;hsDraw();}};
+function eHealth(param){if(param==="pipeline"&&!STF.stages.size){STF.stages=new Set([0,1,2,3]);saveStf();}
+  Object.assign(on,{recs:0,hl:0,near:0});renderChips(["stores","recs"]);syncLayers();maybeFit();hRender();$("#vtitle").textContent="Stores";}
+SCOPED.health=()=>{if(STF.open){HS.lim=15;hsDraw();}if(STF.stages.size)plDraw();};
 
 /* ---------- Demand & Capacity ---------- */
 const FL=S.map((s,i)=>[s,i]).filter(([s])=>FLAG(s)).sort((a,b)=>(b[0].ov??-9)-(a[0].ov??-9));
@@ -870,13 +912,19 @@ const MK=D.markets.filter(m=>m.rivals_total>=6).sort((a,b)=>b.rivals_total/(b.tx
 const mkStates=m=>((m.name.split(",")[1]||"").trim().split("-"));
 let cmSeg="brands";
 function vCompete(el){
-  el.innerHTML=`${scopeBar()}<div id="cmBody"></div>
+  el.innerHTML=`<div class="ctlrow"><div class="pdd" id="cmPdd"><button class="pddbtn" aria-haspopup="dialog" aria-expanded="false"></button><div class="pddlist" role="dialog" aria-label="Brands to compare"></div></div></div><div id="cmBody"></div>
   ${drawer("cmp","mk","Metros & states",`${seg("cmSeg",[["brands","Rival-heavy metros"],["states","Under-built states"]],cmSeg)}<div id="cmL"></div>`)}`;
   $("#cmSeg").onclick=e=>{const b=e.target.closest("button");if(!b)return;cmSeg=b.dataset.k;$$("#cmSeg button").forEach(x=>x.setAttribute("aria-pressed",x===b));cmList();};
   cmDraw();}
-function cmDraw(){if(!$("#cmBody"))return;updateScopeUI();
+let PDD=false;
+const pddLabel=()=>{const sel=CODES.filter(c=>CMP.has(c));return `${ic("rival")}<span class="pl">${sel.length?sel.map(c=>esc(CB[c].short)).join(", "):"Choose brands"}</span>${sel.length?`<span class="n">${sel.length}</span>`:""}<span class="car">▾</span>`;};
+function pddDraw(){const p=$("#cmPdd");if(!p)return;const b=p.querySelector(".pddbtn"),L=p.querySelector(".pddlist");b.innerHTML=pddLabel();
+  p.classList.toggle("on",PDD);b.setAttribute("aria-expanded",PDD);
+  if(PDD){if(!L.children.length){L.innerHTML=ddHTML();bindBrandDD(L,()=>{PDD=false;pddDraw();});}L.querySelectorAll("input[type=checkbox]").forEach(i=>i.checked=CMP.has(i.value));}else L.innerHTML="";
+  b.onclick=()=>{PDD=!PDD;pddDraw();if(PDD&&!isDesk()&&SHEET==="peek")snap("full");};}
+function cmDraw(){if(!$("#cmBody"))return;updateScopeUI();pddDraw();
   const sel=CODES.filter(c=>CMP.has(c)),T=SS.length,all=isAll(),where=all?"US":scopeLabel();
-  if(!sel.length){$("#cmBody").innerHTML=drawer("cmp","key","Key numbers",`<div class="kgrid">${K("store","Texas Roadhouse",tw("cm-t",T),`<span>in this area</span>`)}${K("rival","Brands","<span style=\"font-size:15px\">None yet</span>",`<span>pick in Compare ▾ on the map</span>`,"","ns")}</div>`,{key:1,open:1});tweenIn($("#cmBody"));cmList();return;}
+  if(!sel.length){$("#cmBody").innerHTML=drawer("cmp","key","Key numbers",`<div class="kgrid">${K("store","Texas Roadhouse",tw("cm-t",T),`<span>in this area</span>`)}${K("rival","Brands","<span style=\"font-size:15px\">None yet</span>",`<span>pick brands above or in Compare ▾</span>`,"","ns")}</div>`,{key:1,open:1});tweenIn($("#cmBody"));cmList();return;}
   const st=sel.map(c=>[c,cstat(c)]);
   const bars=[["TX",T,"#A5022F","Texas Roadhouse"],...st.map(([c,x])=>[c,x.n,CB[c].col,CB[c].short])],mx=Math.max(1,...bars.map(a=>a[1]));
   const keyT=`<div class="kgrid">${K("store","Texas Roadhouse",tw("cm-t",T),`<span>in this area</span>`,`${T} Texas Roadhouse in ${where}`)}${st.slice(0,3).map(([c,x])=>K("rival",CB[c].short,tw("cm-k-"+c,x.n),`${gbar(x.n,0,Math.max(x.n,T,1),CB[c].col,T)}<span>${T?`${(x.n/T).toFixed(1)}x TXRH`:"no TXRH here"}${x.n?` · ${Math.round(x.ov/x.n*100)}% ≤10 km`:""}</span>`,`${x.n} ${CB[c].name} in ${where}`)).join("")}</div>`;
@@ -961,13 +1009,13 @@ let stDayOnly=false;
 function closeStore(){hideRival();if(PREV&&PREV!=="store")history.back();else location.hash="#/home";}
 
 /* ---------- Pipeline ---------- */
-function plDraw(){const el=$("#plB");if(!el)return;updateScopeUI();const A=SA.map(i=>[D.announced[i],i]),stg=[0,0,0,0];A.forEach(([a])=>stg[stage(a.status)]++);const states=new Set(A.map(([a])=>a.state)).size,all=isAll();
+function plDraw(){const el=$("#plB");if(!el)return;updateScopeUI();const asKey=!STF.open,A=SA.filter(i=>STF.stages.has(stage(D.announced[i].status))).map(i=>[D.announced[i],i]),stg=[0,0,0,0];A.forEach(([a])=>stg[stage(a.status)]++);const states=new Set(A.map(([a])=>a.state)).size,all=isAll();
   const nx=A.map(([a])=>[a,openDate(a)]).filter(x=>x[1]&&x[1]>=new Date(today.getFullYear(),today.getMonth(),today.getDate())).sort((a,b)=>a[1]-b[1])[0];
   const srcs=[...new Set(D.announced.flatMap(a=>String(a.source).split(" ; ").map(x=>x.trim()).filter(x=>x.startsWith("http")&&!x.includes("<"))))];
-  el.innerHTML=(!A.length?emptyCard("pipeline sites"):drawer("pipe","key","Key numbers",`<div class="kgrid">${K("crane",all?"Sites tracked":"Sites here",`${tw("pl-n",A.length)}${all?"":`<small> of ${D.announced.length}</small>`}`,stack(stg.map((n,k)=>[n/A.length,STAGES[k][1]])),`${A.length} pipeline sites in ${scopeLabel()}`)}
+  el.innerHTML=(!A.length?(asKey?emptyCard("pipeline sites"):""):drawer("pipe",asKey?"key":"up",asKey?"Key numbers":"Upcoming",`<div class="kgrid">${K("crane",all?"Sites tracked":"Sites here",`${tw("pl-n",A.length)}${all?"":`<small> of ${D.announced.length}</small>`}`,stack(stg.map((n,k)=>[n/A.length,STAGES[k][1]])),`${A.length} pipeline sites in ${scopeLabel()}`)}
    ${K("flag","Opening soon",tw("pl-o",stg[0]),`<span>${nx?"next: "+esc(nx[0].city)+" "+nx[1].toLocaleDateString("en-US",{month:"short",day:"numeric"}):"no dated opening"}</span>`)}
    ${K("store","Opened YTD",ER.openings_ytd,`<span>company-wide · Q3 release</span>`)}
-   ${K("pin","States",tw("pl-s",states),`<span>"30+ under construction" company-wide</span>`,"Company says over 30 restaurants are under construction across all brands")}</div>`,{key:1,open:1})+drawer("pipe","stages","Sites by stage",`<div class="card">${hbars(STAGES.map(([l,c],k)=>[l,stg[k],null,c]),Math.max(1,...stg))}</div>
+   ${K("pin","States",tw("pl-s",states),`<span>"30+ under construction" company-wide</span>`,"Company says over 30 restaurants are under construction across all brands")}</div>`,asKey?{key:1,open:1}:{count:A.length})+drawer("pipe","stages","Sites by stage",`<div class="card">${hbars(STAGES.map(([l,c],k)=>[l,stg[k],null,c]),Math.max(1,...stg))}</div>
   ${STAGES.map(([l,c],k)=>{const a=A.filter(([x])=>stage(x.status)===k);return a.length?`<h2><span class="chip2" style="background:${c};color:${k===3?"#111":"#fff"}">${a.length}</span> ${l}</h2><div class="rows">${a.map(([x,i])=>row({t:`${esc(x.city)}, ${x.state}`,s:esc(x.status),v:openDate(x)?openDate(x).toLocaleDateString("en-US",{month:"short",day:"numeric"}):"",attr:`data-an="${i}"`})).join("")}</div>`:"";}).join("")}`,{count:A.length}))+drawer("pipe","src","Sources",`${srcs.map(u=>`<div class="src"><a href="${esc(u)}" target="_blank" rel="noopener">${esc(u)}</a></div>`).join("")}<p class="note">News, permits and brand location pages. "${esc(ER.pipeline_quote)}" (Q3 2026 earnings release).</p>`,{count:srcs.length});tweenIn(el);}
 
 
@@ -1044,7 +1092,7 @@ function toggleTheme(){theme=theme==="dark"?"light":"dark";localStorage.setItem(
   if(!usingRaster)map.setStyle(STYLE(theme),{diff:false});if(rendered.about){rendered.about=0;if(cur==="about")route();}}
 $("#themeBtn").onclick=toggleTheme;
 addEventListener("keydown",e=>{if(e.key==="Escape"){openMore(false);$("#legend").classList.remove("on");toggleDD(false);hideRival();}});
-document.addEventListener("click",e=>{const dd=$("#cmpdd");if(dd.classList.contains("on")&&!e.target.closest("#cmpdd")&&!e.target.closest(".cmpbtn")&&!e.target.closest("#cmTog"))toggleDD(false);});
+document.addEventListener("click",e=>{if(!e.target.isConnected)return;const dd=$("#cmpdd");if(dd.classList.contains("on")&&!e.target.closest("#cmpdd")&&!e.target.closest(".cmpbtn"))toggleDD(false);const sd=$("#stdd");if(sd.classList.contains("on")&&!e.target.closest("#stdd")&&!e.target.closest(".stbtn"))toggleStDD(false);const pd=e.target.closest(".pdd");if(PDD&&!pd){PDD=false;pddDraw();}});
 addEventListener("resize",()=>map.resize());
 
 /* ================= intro splash ================= */
