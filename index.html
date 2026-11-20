@@ -16,7 +16,7 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath fill='%235b4fe9' d='M16 1.5C9.1 1.5 3.6 6.9 3.6 13.6 3.6 22.4 16 30.5 16 30.5S28.4 22.4 28.4 13.6C28.4 6.9 22.9 1.5 16 1.5Z'/%3E%3Cpath fill='%23fff' d='M8.2 13.6C10.2 10.4 13 8.8 16 8.8S21.8 10.4 23.8 13.6C21.8 16.8 19 18.4 16 18.4S10.2 16.8 8.2 13.6Z'/%3E%3Ccircle cx='16' cy='13.6' r='3.3' fill='%234338ca'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
 <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
-<script src="data.js?v=6.6"></script>
+<script src="data.js?v=6.7"></script>
 <style>
 :root{--bg:#f7f3ec;--panel:#fff;--panel2:#f3ede4;--line:#e6ddd0;--text:#241F20;--muted:#6b5f55;--brand:#A5022F;--brand-t:#A5022F;--brand2:#991A36;--brand-soft:#f8e6ea;--brand-ink:#7d0224;--tan:#D0BC9B;--wood:#A66648;
  --demand:#A66648;--supply:#0072B2;--cost:#9a7b00;--up:#047857;--up-bg:#e7f6ef;--down:#b4410e;--down-bg:#fdeee6;--flat-bg:#efe9e0;--warn:#9a3412;--warn-bg:#fff4ec;
@@ -374,11 +374,11 @@ body[data-sv="1"] .mapscope{display:flex}
 h2.stgh{display:flex;align-items:center;gap:8px}h2.stgh .cnt{font-size:12px;color:var(--muted);font-weight:700}
 .cbx .ringsw{margin-right:-2px}
 /* v6.5 tiles open a filter sheet */
-.k.kf{position:relative;cursor:pointer;transition:border-color .15s,box-shadow .15s,transform .1s;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
-.k.kf .kh{padding-right:18px}
-.k.kf:hover{border-color:color-mix(in srgb,var(--brand) 55%,var(--line))}
-.k.kf:active{transform:scale(.985)}
-.k.kf:focus-visible{outline:2px solid var(--brand-t);outline-offset:2px}
+.k.kf,.k.kp{position:relative;cursor:pointer;transition:border-color .15s,box-shadow .15s,transform .1s;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
+.k.kf .kh,.k.kp .kh{padding-right:18px}
+.k.kf:hover,.k.kp:hover{border-color:color-mix(in srgb,var(--brand) 55%,var(--line))}
+.k.kf:active,.k.kp:active{transform:scale(.985)}
+.k.kf:focus-visible,.k.kp:focus-visible{outline:2px solid var(--brand-t);outline-offset:2px}
 .k .fb{position:absolute;top:8px;right:8px;display:inline-flex;align-items:center;gap:4px;color:var(--muted);opacity:.6;pointer-events:none;line-height:1}
 .k .fb .ico{width:12px;height:12px}
 .k.fon{border-color:var(--brand);box-shadow:inset 0 0 0 1px var(--brand)}
@@ -426,9 +426,26 @@ h2.stgh{display:flex;align-items:center;gap:8px}h2.stgh .cnt{font-size:12px;colo
  body.fopen .mapbl,body.fopen #legend{opacity:0;visibility:hidden;pointer-events:none}}
 .mapbl{transition:opacity .15s}
 /* v6.6 funnel never overlaps the tile label: the label truncates before the icon */
-.k.kf .kh{padding-right:0;margin-right:16px}
+.k.kf .kh,.k.kp .kh{padding-right:0;margin-right:16px}
 .kh span{min-width:0;overflow:hidden;text-overflow:ellipsis}
 .srch{font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin:14px 0 6px}
+
+/* v6.7 prospects screening */
+.pctl{display:flex;align-items:center;gap:6px;padding:2px 0 8px;min-width:0}
+.pbtn{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:0 11px;border-radius:999px;border:1px solid var(--line);background:var(--panel2);color:var(--text);font:inherit;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;flex:none}
+.pbtn .ico{width:15px;height:15px}.pbtn .n{min-width:18px;height:18px;border-radius:9px;background:#A5022F;color:#fff;font-size:11px;display:inline-flex;align-items:center;justify-content:center;padding:0 5px;box-sizing:border-box}
+.pbtn.on{border-color:var(--brand);color:var(--brand-t)}
+.pcount{margin-left:auto;font-size:12.5px;color:var(--muted);white-space:nowrap;min-width:0;font-variant-numeric:tabular-nums}.pctl .ibtn{width:36px;height:36px;min-width:36px;flex:none}.pctl .ibtn.nx:not([disabled]){background:#A5022F;border-color:#A5022F;color:#fff}.pcount b{color:var(--text)}
+.ptabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:8px -2px 6px;padding:2px}.ptabs::-webkit-scrollbar{display:none}
+.ptabs button{flex:none;min-height:34px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:none;color:var(--muted);font:inherit;font-size:12.5px;font-weight:700;cursor:pointer;position:relative}
+.ptabs button.act::after{content:"";position:absolute;top:5px;right:5px;width:6px;height:6px;border-radius:50%;background:#A5022F}
+.ptabs button[aria-selected=true]{background:var(--text);border-color:var(--text);color:var(--panel)}
+.ptitle{font-weight:800;font-size:14px;margin:4px 0 2px}.ptitle em{font-style:normal;color:var(--brand-t);margin-left:6px;font-size:12.5px}
+.prules .ftgl{align-items:flex-start;padding:6px 0}.prules .ftgl input{margin-top:2px}.prules small,.pwl small{display:block;font-weight:500;color:var(--muted);font-size:12px;margin-top:2px}
+.pwr{display:flex;flex-direction:column;gap:2px;padding:6px 0;border-bottom:1px solid var(--line)}.pwr:last-child{border-bottom:0}.pwl b{font-size:13.5px}
+.pseg{margin:4px 0 0}.pseg button{min-height:34px;font-size:12.5px}
+@media(min-width:520px){.pwr{flex-direction:row;align-items:center;justify-content:space-between;gap:10px}.pseg{flex:none;width:250px;margin:0}}
+@media(max-width:380px){.pbtn{padding:0 9px;font-size:12.5px}.pcount{font-size:12px}}
 </style>
 </head>
 <body>
@@ -611,7 +628,7 @@ const storesGJ=()=>FC(S.map((s,i)=>[s,i]).filter(([s])=>(!storeFilter||s.s===sto
 const compGJ=c=>FC(D.comps.map((x,i)=>[x,i]).filter(([x])=>x[0]===c).map(([x,i])=>ptF(x[2],x[1],{i,c})));
 const ANN=D.announced.filter(a=>a.lat!=null);
 const annGJ=FC(ANN.map((a,i)=>ptF(a.lon,a.lat,{i,st:stage(a.status)})));
-const recGJF=()=>FC(REC.map((r,i)=>[r,i]).filter(([r])=>passRF(r)).map(([r,i])=>ptF(r.lon,r.lat,{i})));const recGJ=recGJF();
+const recGJF=()=>FC(REC.map((r,i)=>[r,i]).filter(([r])=>passRF(r)).map(([r,i])=>ptF(r.lon,r.lat,{i,go:r.fips,top:1})));const recGJ=recGJF();
 let hlGJ=FC([]),focusGJ=FC([]),nearGJ=FC([]),ringGJ=FC([]),selGJ=FC([]);
 const LAYERS={stores:{label:"Stores",sw:`<img class="sw" src="${BADGE}" alt="">`,ids:["st-cluster","st-count","st-horns"]},
  recs:{label:"Prospects",sw:`<i class="sw" style="border-radius:50%;border:2px solid var(--rec);background:rgba(165,2,47,.35)"></i>`,ids:["rec-all"]},
@@ -659,7 +676,7 @@ async function addLayers(){
     map.addLayer({id:`c-${c}-cl`,type:"circle",source:"c-"+c,filter:["has","point_count"],paint:{"circle-color":CB[c].col,"circle-opacity":.9,"circle-radius":["step",["get","point_count"],11,10,14,40,18,120,22],"circle-stroke-width":2,"circle-stroke-color":"#111"}});
     if(!usingRaster)map.addLayer({id:`c-${c}-n`,type:"symbol",source:"c-"+c,filter:["has","point_count"],layout:{"text-field":["get","point_count_abbreviated"],"text-size":11,"text-font":["Noto Sans Bold"],"text-allow-overlap":true},paint:{"text-color":LIGHTC.has(CB[c].col)?"#111":"#fff"}});
     map.addLayer({id:`c-${c}-pt`,type:"symbol",source:"c-"+c,filter:["!",["has","point_count"]],layout:{"icon-image":"b-"+c,"icon-size":["interpolate",["linear"],["zoom"],4,.55,10,.8],"icon-allow-overlap":true}});});
-  map.addLayer({id:"rec-all",type:"circle",source:"recall",paint:{"circle-radius":7,"circle-color":"#A5022F","circle-opacity":.35,"circle-stroke-width":2.2,"circle-stroke-color":dark?"#e0234f":"#A5022F"}});
+  map.addLayer({id:"rec-all",type:"circle",source:"recall",paint:{"circle-radius":["case",["==",["get","top"],1],7,4.5],"circle-color":"#A5022F","circle-opacity":["case",["==",["get","top"],1],.38,.22],"circle-stroke-width":2.2,"circle-stroke-color":dark?"#e0234f":"#A5022F"}});
   map.addLayer({id:"hl",type:"circle",source:"hl",paint:{"circle-radius":["interpolate",["linear"],["zoom"],3,8,10,18],"circle-color":"rgba(230,159,0,.12)","circle-stroke-width":2.5,"circle-stroke-color":"#E69F00"}});
   map.addLayer({id:"near-pt",type:"symbol",source:"near",layout:{"icon-image":["concat","b-",["get","c"]],"icon-size":["interpolate",["linear"],["zoom"],8,.62,13,.85],"icon-allow-overlap":true}});
   map.addLayer({id:"st-sel",type:"circle",source:"sel",paint:{"circle-radius":21,"circle-color":"rgba(165,2,47,.25)","circle-stroke-width":3.5,"circle-stroke-color":"#A5022F"}});
@@ -689,7 +706,7 @@ const popup=new maplibregl.Popup({closeButton:true,maxWidth:"290px",offset:14});
 map.on("click","st-cluster",e=>{const f=e.features[0];map.getSource("stores").getClusterExpansionZoom(f.properties.cluster_id).then(z=>map.easeTo({center:f.geometry.coordinates,zoom:Math.max(z,7)+.2,duration:RM?0:600}));});
 map.on("click","st-horns",e=>{hideRival();const to="#/store/"+e.features[0].properties.i;cur==="store"?location.replace(to):location.hash=to;});
 map.on("click","ann",e=>{const a=ANN[e.features[0].properties.i];popup.setLngLat([a.lon,a.lat]).setHTML(`<b>${esc(a.city)}, ${a.state}</b><br>${STAGES[stage(a.status)][0]}<br><span style="color:var(--muted)">${esc(a.status)}</span>`).addTo(map);});
-map.on("click","rec-all",e=>{location.hash="#/next/"+e.features[0].properties.i;});
+map.on("click","rec-all",e=>{location.hash="#/next/"+e.features[0].properties.go;});
 const clickable=["st-cluster","st-horns","ann","rec-all","near-pt",...CODES.flatMap(c=>[`c-${c}-pt`,`c-${c}-cl`])];
 CODES.forEach(c=>{map.on("click",`c-${c}-pt`,e=>showRival(e.features[0].properties.i));
   map.on("click",`c-${c}-cl`,e=>{const f=e.features[0];map.getSource("c-"+c).getClusterExpansionZoom(f.properties.cluster_id).then(z=>map.easeTo({center:f.geometry.coordinates,zoom:z+.3,duration:RM?0:600}));});});
@@ -724,7 +741,7 @@ function cmpChanged(){saveCmp();syncLayers();if($("#cmpdd").classList.contains("
 function fitComp(){const pts=[];D.comps.forEach(x=>{if(CMP.has(x[0]))pts.push([x[2],x[1]]);});if(pts.length>40)fitUS();else if(pts.length)fitPts(pts,9);}
 $("#legBtn").addEventListener("click",()=>{renderLegend();const o=$("#legend").classList.toggle("on");$("#legBtn").setAttribute("aria-expanded",o);});
 function pad(p=30){return isDesk()?{top:p+50,bottom:p,left:p,right:p+50}:{top:p+40,bottom:p,left:p/2,right:p/2+40};}
-function fitUS(){map.fitBounds(US_B,{padding:isDesk()?pad(14):{top:52,bottom:10,left:6,right:50},duration:RM?0:700});}
+function fitUS(instant){map.fitBounds(US_B,{padding:isDesk()?pad(14):{top:52,bottom:10,left:6,right:50},duration:RM||instant?0:700});}
 function fitPts(pts,maxZoom=9){if(!pts.length)return;const b=new maplibregl.LngLatBounds();pts.forEach(p=>b.extend(p));map.fitBounds(b,{padding:pad(46),maxZoom,duration:RM?0:800});}
 function flyTo(lon,lat,z=10){map.flyTo({center:[lon,lat],zoom:z,duration:RM?0:900,essential:true});}
 const markers=[];
@@ -769,7 +786,8 @@ function maybeFit(){if(isAll())fitUS();}
 const SCOPED={};
 function refreshScoped(force){updateScopeUI();if(!FOCUS&&SCOPED[cur])SCOPED[cur]();renderLegend();fitSoon();}
 function scheduleScope(){clearTimeout(scopeTimer);scopeTimer=setTimeout(()=>{renderLegend();if(FOCUS||!loaded)return;const prev=JSON.stringify([SC.box,SS.length]);computeScope();if(JSON.stringify([SC.box,SS.length])!==prev)refreshScoped();else updateScopeUI();},220);}
-map.on("moveend",scheduleScope);map.on("resize",scheduleScope);map.on("load",scheduleScope);
+/* v6.7: a panel/map resize (e.g. Home -> Prospects on a phone) is not the user picking an area: keep "All US" and refit instead of silently switching to "Map area" */
+map.on("moveend",scheduleScope);map.on("resize",()=>{if(loaded&&!FOCUS&&isAll()){clearTimeout(scopeTimer);fitUS(true);return;}scheduleScope();});map.on("load",scheduleScope);
 /* state tap: anywhere not on a pin */
 map.on("click",e=>{if(cur==="store")return;const p=e.point,bb=[[p.x-5,p.y-5],[p.x+5,p.y+5]];
   const ids=clickable.filter(id=>map.getLayer(id)&&map.getLayoutProperty(id,"visibility")!=="none");
@@ -785,7 +803,8 @@ function renderLegend(){if(!loaded)return;const it=[],v=viewBox();
     else it.push(`<div><img src="${svgURL(pinSVG(NEUTRAL))}" alt="">Texas Roadhouse</div>`);
     if(z<7.5)it.push(`<div><i style="border-radius:50%;background:#A5022F;border:2px solid #D0BC9B;width:16px;height:16px"></i>Store cluster (count)</div>`);}
   if(markers.length)it.push(`<div><i style="border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:var(--panel);border:2.5px solid var(--rec);width:14px;height:14px"></i>Prospect (national rank)</div>`);
-  if(on.recs&&anyIn(REC.map(r=>[r.lon,r.lat])))it.push(`<div><i style="border-radius:50%;border:2px solid var(--rec);background:rgba(165,2,47,.35)"></i>Prospective location</div>`);
+  if(on.recs&&recallMode==="cand"){const t=PR.slice(0,25),o=PR.slice(25);if(anyIn(t.map(c=>[c.lo,c.la])))it.push(`<div><i style="border-radius:50%;border:2px solid var(--rec);background:rgba(165,2,47,.38)"></i>Top 25 by your screen</div>`);if(anyIn(o.map(c=>[c.lo,c.la])))it.push(`<div><i style="border-radius:50%;border:2px solid var(--rec);background:rgba(165,2,47,.22);width:10px;height:10px;margin:0 3px"></i>Other matching county</div>`);}
+  else if(on.recs&&anyIn(REC.map(r=>[r.lon,r.lat])))it.push(`<div><i style="border-radius:50%;border:2px solid var(--rec);background:rgba(165,2,47,.35)"></i>Prospective location</div>`);
   if(on.ann){const vk=STAGES.map((_,k)=>STF.stages.has(k)&&anyIn(ANN.filter(a=>stage(a.status)===k).map(a=>[a.lon,a.lat])));
     if(STG_ON())STAGES.forEach(([l,c],k)=>{if(vk[k])it.push(`<div>${ringSw(c,16)}Upcoming · ${l.toLowerCase()}</div>`);});else if(vk.some(Boolean))it.push(`<div>${ringSw(NEUTRAL,16)}Upcoming store (pipeline)</div>`);}
   if(on.hl&&anyIn(hlGJ.features.map(f=>f.geometry.coordinates)))it.push(`<div><i style="border-radius:50%;border:3px solid #E69F00"></i>Over capacity</div>`);
@@ -898,9 +917,9 @@ function bindF(){const m=FM[FK];
     L.oninput=on("lo");H.oninput=on("hi");const fin=()=>applySF(true);L.onchange=fin;H.onchange=fin;}}
 let sfRaf=0,sfFull=false;
 function applySF(full){saveSF();sfFull=sfFull||full;if(sfRaf)return;sfRaf=requestAnimationFrame(()=>{sfRaf=0;const fu=sfFull;sfFull=false;
-  calmLayers();if(map.getSource("stores"))map.getSource("stores").setData(storesGJ());if(map.getSource("recall"))map.getSource("recall").setData(recGJF());
+  calmLayers();if(map.getSource("stores"))map.getSource("stores").setData(storesGJ());if(cur==="next")pMapSync();else if(map.getSource("recall")){map.getSource("recall").setData(recGJF());recallMode="rec";}
   if(cur==="demand")setHL(FL.filter(([s])=>passSF(s)).map(x=>x[0]));computeScope();refreshScoped();decorateTiles();
-  if(FK){if(fu)renderF();else{const c=fsheet.querySelector(".fsh-n");if(c)c.textContent=fCountLine();const n=sfCount(),b=fsheet.querySelector("[data-sfclear]");if(b){b.disabled=!n;b.textContent=`Clear filters${n?` (${n})`:""}`;}
+  if(FK&&FK!=="P"){if(fu)renderF();else{const c=fsheet.querySelector(".fsh-n");if(c)c.textContent=fCountLine();const n=sfCount(),b=fsheet.querySelector("[data-sfclear]");if(b){b.disabled=!n;b.textContent=`Clear filters${n?` (${n})`:""}`;}
     const ib=fsheet.querySelector("[data-finc]"),f=SF[FK];if(ib){ib.disabled=!f;ib.checked=f?!!f.inc:true;}fsheet.querySelectorAll("[data-fpre]").forEach(b=>{const [a,c]=FM[FK].pre[+b.dataset.fpre][1];b.setAttribute("aria-pressed",!!f&&(f.lo??null)===(a??null)&&(f.hi??null)===(c??null));});}}});}
 function clearSF(){Object.keys(SF).forEach(k=>delete SF[k]);applySF(true);}
 document.addEventListener("click",e=>{const c=e.target.closest("[data-sfclear]");if(c&&!fsheet.contains(c)){clearSF();return;}if(c){clearSF();return;}
@@ -918,7 +937,7 @@ const KPI={
  wait:r=>{const h=hot0(r);return h&&h.wait?K("wait","Busiest wait",`${h.wait}<small> min</small>`,`${gbar(h.wait,30,60,"var(--cost)",WAVG)}<span>avg ${Math.round(WAVG)}</span>`,`Typical weekend dinner wait at ${h.name}: ${h.wait} min vs chain average ${WAVG}`):K("wait","Busiest wait","–","<span>no nearby data</span>");},
  rev:r=>{const h=(r.hot_stores||[]).slice().sort((a,b)=>(b.rev_vs_age??-1e9)-(a.rev_vs_age??-1e9))[0];return h&&h.rev_vs_age!=null?K("chat","Review excess",delta(h.rev_vs_age,"%"),`<span>${esc(h.name)} vs age-expected</span>`,`${h.name} has ${h.rev_vs_age}% more reviews than its age predicts`):K("chat","Review excess","–","<span>no nearby data</span>");},
  rivals:r=>{const a=r.comp_25km,b=r.txrh_25km,t=Math.max(1,a+b);return K("rival","Rivals vs TXRH",`${a}<small> vs </small>${b}`,`<span class="ratio"><i style="width:${a/t*100}%;background:#E69F00"></i><i style="width:${b/t*100}%;background:#21918c"></i></span><span>≤25 km</span>`,`${a} rival steakhouses vs ${b} Texas Roadhouses within 25 km`);},
- store:r=>K("store","Nearest TXRH",`${Math.round(r.nearest_store_km)}<small> km</small>`,`<span>${r.stores_in_county} in county · ${r.txrh_100km} ≤100 km</span>`,`Nearest Texas Roadhouse ${Math.round(r.nearest_store_km)} km away`),
+ store:r=>K("store","Nearest TXRH",`${Math.round(r.nearest_store_km/1.609344)}<small> mi</small>`,`<span>${r.stores_in_county} in county · ${r.txrh_100km} ≤100 km</span>`,`Nearest Texas Roadhouse ${Math.round(r.nearest_store_km/1.609344)} mi away`),
  growth:r=>K("grow","Pop. growth",delta(r.growth_pct,"%"),`<span>${fmt(r.pop_latest/1000)}k residents · since 2020</span>`,`Population ${fmt(r.pop_latest)}, ${f1(r.growth_pct)}% since 2020`),
  search:r=>K("search","Search interest",r.trends_txrh==null?"–":`${Math.round(r.trends_txrh)}<small>/100</small>`,gbar(r.trends_txrh||0,0,100,"var(--demand)"),`Google search interest ${r.trends_txrh} of 100`),
  room:r=>{const e=r.expected_stores,n=r.stores_in_county;return K("store","Room for stores",`${n}<small> of ~${f1(e)}</small>`,`${gbar(n,0,Math.max(e,n,1),"var(--demand)")}<span>vs chain density</span>`,`${n} stores in county vs about ${f1(e)} expected at chain-average density`);},
@@ -963,33 +982,134 @@ function hmDraw(){const el=$("#hmK");if(!el)return;updateScopeUI();const st=SS.m
 SCOPED.home=hmDraw;
 function eHome(){Object.assign(on,{stores:1,recs:1,ann:0,hl:0,near:0});renderChips(["stores","recs","ann"]);syncLayers();maybeFit();hmDraw();}
 
-/* ---------- Prospective Locations ---------- */
+/* ---------- Prospective Locations: interactive screening (v6.7) ----------
+   Candidates = every county the v2 model scored (data/processed/v2_candidates_all.csv): lower-48 counties with ≥60k residents in a metro/micro area.
+   Default filters + weights reproduce the model's published top 25 exactly; everything else is the user's call. */
 let page=0,selI=null;
-const prow=i=>{const r=REC[i];return `<button class="prow" data-go="#/next/${i}"><span class="rk">${r.rank}</span><span style="min-width:0"><b>${esc(r.title)}</b><small>${esc(headline3(r))}</small></span><span class="sc">${Math.round(r.score)}</span></button>`;};
-function vNextList(el){const L=SR,pg=Math.max(1,Math.ceil(L.length/5));page=Math.min(page,pg-1);const s=page*5,idx=L.slice(s,s+5),all=isAll();
-  const list=L.length?`<div class="plist">${idx.map(prow).join("")}</div>
-   <div class="pager"><span class="sub">${s+1}–${s+idx.length} of ${L.length}${all?" · demand-led score":" here"}</span><button class="ibtn" id="prev5" aria-label="Previous 5 prospects" ${page===0?"disabled":""}>${ic("back")}</button><button class="btn primary" id="more5" ${page>=pg-1?"disabled":""}>Next 5 ${ic("chev")}</button></div>`:emptyCard("prospective locations");
-  el.innerHTML=`${scopeBar()}
-  ${drawer("next","list",all?(page===0?"Top 5 of 25 prospects":"Ranked prospects"):`Prospects here · national rank`,list,{key:1,open:1})}
-  ${drawer("next","held","Held back: pipeline nearby",`<div class="rows">${D.flagged.slice(0,10).map(f=>row({t:`${esc(f.CTYNAME)}, ${esc(f.STNAME)}`,s:`${ic("crane")}${esc(f.announced_near)} · ${Math.round(f.announced_km)} km`,v:Math.round(f.score),vs:"score"})).join("")}</div>`,{count:D.flagged.length})}
-  ${drawer("next","new","New territory",`<div class="rows">${D.new_territory.map(f=>row({t:`${esc(f.CTYNAME)}, ${esc(f.STNAME)}`,s:`${ic("store")}${Math.round(f.nearest_store_km)} km to nearest store · ${f.comp_25km} rivals`,v:Math.round(f.score),vs:"score"})).join("")}</div><p class="note">No Texas Roadhouse within 100 km.</p>`,{count:D.new_territory.length})}`;
+const CAND=D.cands,CK=D.cand_keys,CBY={},RECBY={},MI=1.609344;CAND.forEach((c,i)=>{c.i=i;c.nm=c.nk/MI;c.dcm=c.dck/MI;c.lp=Math.log10(c.pop);CBY[c.id]=c;});REC.forEach((r,i)=>RECBY[r.fips]=i);
+let candReady=false;
+function candInit(){if(candReady)return;candReady=true;
+  /* nearby weekend wait = distance-weighted (e^-d/25 km) mean of Texas Roadhouse weekend waits within 60 km, the same neighbourhood the model uses for "overflowing nearby stores" */
+  const ws=S.filter(s=>s.w!=null);CAND.forEach(c=>{let a=0,b=0,n=0;ws.forEach(s=>{const d=km(c.la,c.lo,s.lat,s.lon);if(d<=60){const w=Math.exp(-d/25);a+=w*s.w;b+=w;n++;}});c.wn=n?a/b:null;c.wnn=n;});
+  Object.values(PM).forEach(m=>{if(m.tog)return;const v=CAND.map(m.get).filter(x=>x!=null);let lo=Math.min(...v),hi=Math.max(...v);m.min=+(Math.floor(lo/m.step)*m.step).toFixed(3);m.max=+(Math.ceil(hi/m.step)*m.step).toFixed(3);m.nodata=CAND.length-v.length;});}
+const fmtPop=v=>v>=1e6?`${(v/1e6).toFixed(v>=1e7?0:1)}M`:`${Math.round(v/1e3)}k`;
+const PM={
+ nm:{t:"Distance to nearest TXRH",tab:"Distance",get:c=>c.nm,step:.5,dec:1,u:" mi",pre:[["5+ mi",[5,null]],["10+ mi",[10,null]],["25+ mi",[25,null]]],src:"Texas Roadhouse store locator; distance from the county's 2020 Census population center"},
+ g:{t:"Population growth since 2020",tab:"Growth",get:c=>c.g,step:.5,dec:1,u:"%",pre:[["Growing",[0,null]],["+3%+",[3,null]],["+8%+",[8,null]]],src:"Census population estimates (2020 → latest)"},
+ lp:{t:"Population",tab:"Population",get:c=>c.lp,step:.05,dec:2,log:1,pre:[["100k+",[5,null]],["250k+",[Math.log10(25e4),null]],["500k+",[Math.log10(5e5),null]]],src:"Census county population estimates"},
+ wn:{t:"Nearby TXRH weekend wait",tab:"Wait",get:c=>c.wn,step:.5,dec:1,u:" min",pre:[["45+ min",[45,null]],["50+ min",[50,null]]],nod:"a Texas Roadhouse with wait data within 37 mi",src:"Google Popular Times weekend waits of Texas Roadhouses within 60 km (37 mi), distance-weighted"},
+ c25:{t:"Steakhouse rivals within 15.5 mi",tab:"Rivals",get:c=>c.c25,step:1,dec:0,u:"",pre:[["None",[null,0]],["1+",[1,null]],["5+",[5,null]]],src:"All the Places: LongHorn, Outback, Logan's, Saltgrass, Black Angus locations within 25 km"},
+ inc:{t:"Median household income",tab:"Income",get:c=>c.inc,step:1000,dec:0,money:1,pre:[["$70k+",[7e4,null]],["$90k+",[9e4,null]]],src:"Census ACS 5-year median household income"},
+ dcm:{t:"Distance to supply DC",tab:"Supply",get:c=>c.dcm,step:5,dec:0,u:" mi",pre:[["≤ 93 mi (full credit)",[null,93.2]],["≤ 200 mi",[null,200]]],src:"Public SYGMA / food-service distribution center addresses (proxy network)"},
+ rpp:{t:"Cost level (RPP, US = 100)",tab:"Cost",get:c=>c.rpp,step:.5,dec:1,u:"",pre:[["Below US avg",[null,99.9]]],src:"BEA regional price parities (metro; US nonmetro value elsewhere)"},
+ tr:{t:"Google search interest",tab:"Search",get:c=>c.tr,step:1,dec:0,u:"/100",pre:[["40+",[40,null]],["60+",[60,null]]],nod:"search-interest data",src:"Google Trends interest in Texas Roadhouse by TV market (0–100)"},
+ room:{tog:1,t:"Room for another store",d:"County has at least 0.4 fewer stores than chain density predicts",test:c=>c.hr>=.4},
+ pipe:{tog:1,t:"Skip pipeline overlap",d:"Hide counties with an announced or under-construction site within 12 mi (20 km)",test:c=>c.ak>20},
+ newt:{tog:1,t:"Skip new territory",d:"Hide counties with no Texas Roadhouse within 62 mi (100 km)",test:c=>c.t100>0},
+ max2:{tog:1,t:"At most 2 per metro",d:"Keep the 2 best-scoring counties in each metro area"}};
+const PTABS=["nm","g","lp","wn","c25","inc","dcm","rpp","tr","rules","weights"];
+const PGRP=[["busy","Busy nearby stores",["overflow","sentiment"]],["dem","Steakhouse demand & search",["category","search"]],["grow","Growth, size & income",["growth","population","spending"]],["white","White space vs chain density",["underserved"]],["sup","Supply chain",["dc_access","cluster"]],["cost","Cost",["cost"]]];
+const PLV=[[0,"Off"],[.5,"Low"],[1,"Model"],[2,"High"]];
+const PF_DEF=()=>({nm:{lo:5,hi:null,inc:false},room:1,pipe:1,newt:1,max2:1});
+const ld=(k,d)=>{try{const v=JSON.parse(sessionStorage.getItem(k)||"null");return v||d();}catch(_){return d();}};
+let PF=ld("ssPF",PF_DEF),PW=ld("ssPW",()=>({}));
+const pSave=()=>{try{sessionStorage.setItem("ssPF",JSON.stringify(PF));sessionStorage.setItem("ssPW",JSON.stringify(PW));}catch(_){}};
+const pwm=g=>PW[g]??1,pCustomW=()=>PGRP.some(([g])=>pwm(g)!==1);
+const PWK={};PGRP.forEach(([g,,ks])=>ks.forEach(k=>PWK[k]=g));
+function pScore(c){if(!pCustomW())return c.sc;let a=0,b=0;CK.forEach((k,j)=>{const m=W[k]*pwm(PWK[k]);a+=m*c.f[j];b+=m;});return b?100*a/b:0;}
+function pPass(c){for(const k in PM){const m=PM[k],f=PF[k];if(!f||k==="max2")continue;if(m.tog){if(!m.test(c))return false;continue;}
+  const v=m.get(c);if(v==null){if(!f.inc)return false;continue;}if(f.lo!=null&&v<f.lo-1e-9)return false;if(f.hi!=null&&v>f.hi+1e-9)return false;}return true;}
+let PR=[],PA=[];
+function pRank(){candInit();const L=CAND.filter(pPass);L.forEach(c=>c.ps=pScore(c));L.sort((a,b)=>b.ps-a.ps||b.sc-a.sc);
+  let out=L;if(PF.max2){const n={};out=L.filter(c=>{const k=c.cbsa||c.id;n[k]=(n[k]||0)+1;return n[k]<=2;});}
+  CAND.forEach(c=>c.rank=null);out.forEach((c,i)=>c.rank=i+1);PR=out;PA=PR.filter(c=>inS(c.la,c.lo,c.st));}
+const pActive=()=>Object.keys(PM).filter(k=>PF[k]).length;
+const pfv=(m,v)=>m.log?fmtPop(10**v):m.money?`$${fmt(Math.round(v/1000))}k`:(m.dec?Number(v).toFixed(m.dec):fmt(v))+(m.u||"");
+function pLabel(k){const m=PM[k],f=PF[k];if(!f)return "";if(m.tog)return "on";if(k==="c25"&&f.hi===0&&f.lo==null)return "none";if(f.lo!=null&&f.hi!=null)return f.lo===f.hi?pfv(m,f.lo):`${pfv(m,f.lo)}–${pfv(m,f.hi)}`;return f.lo!=null?`≥ ${pfv(m,f.lo)}`:`≤ ${pfv(m,f.hi)}`;}
+/* recall source = the ranked matches while on Prospects (top 25 drawn larger); the model's 25 everywhere else */
+function pMapData(){const top=new Set(PR.slice(0,25).map(c=>c.id));return FC(PR.map(c=>ptF(c.lo,c.la,{go:c.id,top:top.has(c.id)?1:0})));}
+let recallMode="rec";
+function pMapSync(){if(!map.getSource("recall"))return;map.getSource("recall").setData(pMapData());recallMode="cand";}
+function recallRestore(){if(recallMode==="rec"||!map.getSource("recall"))return;map.getSource("recall").setData(recGJF());recallMode="rec";}
+function placeCandMarkers(list,selId){clearMarkers();list.forEach(c=>{if(!c)return;const el=document.createElement("button");el.className="rpin"+(selId===c.id?" sel":"");el.setAttribute("aria-label",`${c.rank?"#"+c.rank+": ":""}${c.t}`);el.innerHTML=`<span><b>${c.rank??"·"}</b></span>`;
+  el.addEventListener("click",ev=>{ev.stopPropagation();location.hash="#/next/"+c.id;});markers.push(new maplibregl.Marker({element:el,anchor:"bottom"}).setLngLat([c.lo,c.la]).addTo(map));});}
+const pmed=a=>{const v=a.filter(x=>x!=null).sort((x,y)=>x-y);return v.length?v[Math.floor((v.length-1)/2)]:null;};
+const prow=c=>{const bits=[`${c.nm<10?f1(c.nm):Math.round(c.nm)} mi to TXRH`,`${c.g>=0?"+":""}${f1(c.g)}% pop`,`${c.c25} rival${c.c25===1?"":"s"}`];if(c.wn!=null)bits.push(`${Math.round(c.wn)} min wait`);
+  return `<button class="prow" data-go="#/next/${c.id}"><span class="rk">${c.rank}</span><span style="min-width:0"><b>${esc(c.t)}</b><small>${esc(bits.join(" · "))}</small></span><span class="sc">${Math.round(c.ps)}</span></button>`;};
+function vNextList(el){pRank();const L=PA,pg=Math.max(1,Math.ceil(L.length/5));page=Math.min(page,pg-1);const s=page*5,idx=L.slice(s,s+5),all=isAll(),areaN=CAND.filter(c=>inS(c.la,c.lo,c.st)).length,nA=pActive(),cw=pCustomW();
+  const ctl=`<div class="pctl"><button class="pbtn" data-pt="nm" aria-haspopup="dialog" aria-label="Filters (${nA} on)">${ic("filter")}<span>Filters</span><span class="n">${nA}</span></button><button class="pbtn${cw?" on":""}" data-pt="weights" aria-haspopup="dialog" aria-label="${cw?"Weights (custom)":"Weights"}">${ic("gauge")}<span>Weights</span>${cw?`<span class="n" aria-hidden="true">✓</span>`:""}</button>
+   <span class="pcount" aria-live="polite" aria-label="${fmt(L.length)} of ${fmt(areaN)} counties match"><b>${fmt(L.length)}</b> of ${fmt(areaN)}</span><button class="ibtn" id="prev5" aria-label="Previous 5" ${page===0?"disabled":""}>${ic("back")}</button><button class="ibtn nx" id="more5" aria-label="Next 5" ${page>=pg-1?"disabled":""}>${ic("chev")}</button></div>`;
+  const list=L.length?`<div class="plist">${idx.map(prow).join("")}</div>`
+   :`<div class="card empty"><b>No counties match${all?"":" here"}</b><span>Loosen a filter${all?"":", widen the area"} or reset.</span><button class="btn primary" data-preset>${ic("x")} Reset filters</button></div>`;
+  const gl=L.length?`<div class="kgrid">${pTile("nm","store","Nearest TXRH",`${f1(pmed(L.map(c=>c.nm)))}<small> mi</small>`,"median of matches")}${pTile("g","grow","Pop. growth",`${f1(pmed(L.map(c=>c.g)))}<small>%</small>`,"median since 2020")}
+   ${pTile("wn","wait","Nearby wait",pmed(L.map(c=>c.wn))==null?"–":`${Math.round(pmed(L.map(c=>c.wn)))}<small> min</small>`,`${fmt(L.filter(c=>c.wn!=null).length)} with wait data`)}${pTile("c25","rival","With rivals",`${fmt(L.filter(c=>c.c25>0).length)}<small> of ${fmt(L.length)}</small>`,"steakhouse ≤15.5 mi")}</div>`:"";
+  el.innerHTML=`${scopeBar()}${drawer("next","list","Ranked matches",ctl+list,{key:1,open:1})}${gl?drawer("next","glance","Matches at a glance",gl+`<p class="note">Tap a tile to filter it. Scores: Siteseer model (${Math.round(gmax("demand"))} demand · ${Math.round(gmax("supply"))} supply chain · ${Math.round(gmax("cost"))} cost)${cw?", re-weighted by you":""}.</p>`):""}`;
   if($("#prev5")){$("#prev5").onclick=()=>{page=Math.max(0,page-1);vNextList(el);};$("#more5").onclick=()=>{page=Math.min(pg-1,page+1);vNextList(el);};}
-  placeRecMarkers(idx,selI);updateScopeUI();renderLegend();}
-SCOPED.next=()=>{if(!/#\/next\/\d/.test(location.hash)){page=0;vNextList($("#v-next .shbody"));}};
-function vNextDetail(el,i){const r=REC[i];selI=i;const cb=r.comp_brands||{};
+  pMapSync();placeCandMarkers(idx,selI);updateScopeUI();renderLegend();}
+function pTile(k,icon,label,val,sub){const lb=pLabel(k);return `<div class="k kp${lb?" fon":""}" data-pt="${k}" role="button" tabindex="0" aria-haspopup="dialog" aria-label="${esc(label)}: filter by ${esc(PM[k].t.toLowerCase())}"><div class="kh">${ic(icon)}<span>${esc(label)}</span></div><div class="kv">${val}</div><div class="kx"><span>${esc(sub)}</span></div><span class="fb" aria-hidden="true">${lb?`<i></i>${esc(lb)}`:ic("filter")}</span></div>`;}
+SCOPED.next=()=>{if(!/#\/next\/\d/.test(location.hash)){page=0;vNextList($("#v-next .shbody"));if(FK==="P")renderP();}};
+/* ---- filter + weights sheet (same sheet as the tile filters) ---- */
+let PTAB="nm";
+function openP(tab){candInit();FK="P";PTAB=tab||"nm";$("#legend").classList.remove("on");toggleDD(false);toggleStDD(false);renderP();posF();}
+function pApply(full){pSave();const el=$("#v-next .shbody");page=0;if(el&&cur==="next"&&!/#\/next\/\d/.test(location.hash))vNextList(el);if(FK==="P"){if(full)renderP();else pHead();}}
+function pHead(){const h=fsheet.querySelector(".fsh-n");if(h)h.textContent=`${fmt(PA.length)} of ${fmt(CAND.filter(c=>inS(c.la,c.lo,c.st)).length)} counties · ${scopeLabel()}`;const r=fsheet.querySelector("[data-preset]");if(r)r.textContent=`Reset (${pActive()}${pCustomW()?" + weights":""})`;
+  fsheet.querySelectorAll(".ptabs button").forEach(b=>b.classList.toggle("act",!!(PM[b.dataset.tab]&&PF[b.dataset.tab])||(b.dataset.tab==="rules"&&["room","pipe","newt","max2"].some(k=>PF[k]))||(b.dataset.tab==="weights"&&pCustomW())));}
+function renderP(){const k=PTAB;let body="";
+  if(k==="rules")body=`<div class="prules">${["room","pipe","newt","max2"].map(t=>{const m=PM[t],n=m.test?CAND.filter(c=>!m.test(c)).length:null;return `<label class="ftgl"><input type="checkbox" data-ptog="${t}" ${PF[t]?"checked":""}><span>${m.t}<small>${esc(m.d)}${n!=null?` · removes ${fmt(n)} of ${fmt(CAND.length)}`:""}</small></span></label>`;}).join("")}</div><p class="note">These four are the model's default screens; together with ≥ 5 mi from a store they give the published top 25.</p>`;
+  else if(k==="weights"){const tot=PGRP.reduce((a,[g,,ks])=>a+ks.reduce((x,kk)=>x+W[kk],0)*pwm(g),0);
+    body=`<div class="pw">${PGRP.map(([g,l,ks])=>{const base=ks.reduce((x,kk)=>x+W[kk],0),sh=tot?base*pwm(g)/tot*100:0;return `<div class="pwr"><div class="pwl"><b>${l}</b><small>${Math.round(base*100)}% in model · now ${Math.round(sh)}%</small></div><div class="seg pseg" role="group" aria-label="${esc(l)} weight">${PLV.map(([v,t])=>`<button data-pw="${g}" data-v="${v}" aria-pressed="${pwm(g)===v}">${t}</button>`).join("")}</div></div>`;}).join("")}</div><p class="note">Model weights: demand ${Math.round(gmax("demand"))} · supply chain ${Math.round(gmax("supply"))} · cost ${Math.round(gmax("cost"))}. Changing a group re-ranks every county live.</p>`;}
+  else{const m=PM[k],f=PF[k],src=CAND.filter(c=>inS(c.la,c.lo,c.st)),vals=src.map(m.get).filter(v=>v!=null),nod=src.length-vals.length,bins=fBins(m,vals),mx=Math.max(1,...bins.map(b=>b.c)),lo=f&&f.lo!=null?f.lo:m.min,hi=f&&f.hi!=null?f.hi:m.max;
+    body=`<div class="fhist" aria-hidden="true">${bins.map(b=>`<i data-lo="${b.lo}" data-hi="${b.hi}" style="height:${Math.max(4,b.c/mx*100)}%"></i>`).join("")}</div>
+     <div class="dual"><span class="fill"></span><input type="range" class="rlo" min="${m.min}" max="${m.max}" step="${m.step}" value="${lo}" aria-label="Minimum ${esc(m.t.toLowerCase())}"><input type="range" class="rhi" min="${m.min}" max="${m.max}" step="${m.step}" value="${hi}" aria-label="Maximum ${esc(m.t.toLowerCase())}"></div>
+     <div class="fvals"><span>${pfv(m,m.min)}</span><b class="frange"></b><span>${pfv(m,m.max)}</span></div>
+     <div class="fpre" role="group" aria-label="Quick picks">${m.pre.map(([l,[a,b]],i)=>`<button data-ppre="${i}" aria-pressed="${!!f&&(f.lo??null)===(a??null)&&(f.hi??null)===(b??null)}">${l}</button>`).join("")}</div>
+     ${m.nod?`<label class="ftgl"><input type="checkbox" data-pinc ${!f||f.inc?"checked":""} ${f?"":"disabled"}><span>Include ${fmt(nod)} counties without ${m.nod}</span></label>`:""}<p class="note">${esc(m.src)}.</p>`;}
+  fsheet.innerHTML=`<div class="fsh-h"><span class="fsh-t">${ic("filter")}<b>Screen counties</b></span><span class="fsh-n" aria-live="polite"></span><button class="ibtn fsx" data-fdone aria-label="Close">${ic("x")}</button></div>
+   <div class="ptabs" role="tablist">${PTABS.map(t=>`<button role="tab" data-tab="${t}" aria-selected="${t===k}">${t==="rules"?"Rules":t==="weights"?"Weights":PM[t].tab}</button>`).join("")}</div>
+   ${PM[k]&&!PM[k].tog?`<div class="ptitle">${esc(PM[k].t)}${PF[k]?` <em>${esc(pLabel(k))}</em>`:""}</div>`:""}${body}
+   <div class="fsh-f"><button class="btn" data-preset>Reset</button><button class="btn primary" data-fdone>Done</button></div>`;
+  fsheet.classList.add("on");document.body.classList.add("fopen");pHead();pRangeUI();pBind();
+  const at=fsheet.querySelector('.ptabs [aria-selected="true"]'),tb=fsheet.querySelector(".ptabs");if(at&&tb)tb.scrollLeft=Math.max(0,at.offsetLeft-(tb.clientWidth-at.offsetWidth)/2);}
+function pRangeUI(){const m=PM[PTAB];if(!m||m.tog)return;const L=fsheet.querySelector(".rlo"),H=fsheet.querySelector(".rhi");if(!L)return;const lo=+L.value,hi=+H.value,sp=m.max-m.min||1,fl=fsheet.querySelector(".fill");
+  fl.style.left=`calc(13px + (100% - 26px) * ${(lo-m.min)/sp})`;fl.style.width=`calc((100% - 26px) * ${(hi-lo)/sp})`;fsheet.querySelector(".frange").textContent=(lo<=m.min&&hi>=m.max)?"Any":`${pfv(m,lo)} – ${pfv(m,hi)}`;
+  fsheet.querySelectorAll(".fhist i").forEach(i=>i.classList.toggle("in",+i.dataset.hi>=lo-1e-9&&+i.dataset.lo<=hi+1e-9));}
+function pBind(){const m=PM[PTAB];
+  fsheet.querySelectorAll("[data-fdone]").forEach(b=>b.onclick=closeF);
+  fsheet.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>{PTAB=b.dataset.tab;renderP();fsheet.scrollTop=0;});
+  fsheet.querySelectorAll("[data-ptog]").forEach(i=>i.onchange=()=>{PF[i.dataset.ptog]=i.checked?1:0;if(!i.checked)delete PF[i.dataset.ptog];pApply(true);});
+  fsheet.querySelectorAll("[data-pw]").forEach(b=>b.onclick=()=>{const v=+b.dataset.v;if(v===1)delete PW[b.dataset.pw];else PW[b.dataset.pw]=v;pApply(true);});
+  fsheet.querySelectorAll("[data-ppre]").forEach(b=>b.onclick=()=>{const [a,c]=m.pre[+b.dataset.ppre][1],f=PF[PTAB];if(f&&(f.lo??null)===(a??null)&&(f.hi??null)===(c??null))delete PF[PTAB];else PF[PTAB]={lo:a,hi:c,inc:f?!!f.inc:false};pApply(true);});
+  const inc=fsheet.querySelector("[data-pinc]");if(inc)inc.onchange=()=>{if(PF[PTAB]){PF[PTAB].inc=inc.checked;pApply(true);}};
+  const L=fsheet.querySelector(".rlo"),H=fsheet.querySelector(".rhi");
+  if(L){const set=w=>()=>{let lo=+L.value,hi=+H.value;if(lo>hi){if(w==="lo"){L.value=hi;lo=hi;}else{H.value=lo;hi=lo;}}const prev=PF[PTAB];const a=lo<=m.min+1e-9?null:lo,b=hi>=m.max-1e-9?null:hi;
+      if(a==null&&b==null)delete PF[PTAB];else PF[PTAB]={lo:a,hi:b,inc:prev?!!prev.inc:false};pRangeUI();pApply(false);const t=fsheet.querySelector(".ptitle em");if(t)t.textContent=pLabel(PTAB);};
+    L.oninput=set("lo");H.oninput=set("hi");L.onchange=H.onchange=()=>pApply(true);}}
+function pReset(){PF=PF_DEF();PW={};pApply(true);}
+document.addEventListener("click",e=>{const r=e.target.closest("[data-preset]");if(r){pReset();return;}const t=e.target.closest("[data-pt]");if(t&&!e.target.closest("#fsheet")){if(FK==="P"&&PTAB===t.dataset.pt){closeF();return;}openP(t.dataset.pt);}});
+document.addEventListener("keydown",e=>{const t=e.target.closest&&e.target.closest(".k.kp");if(t&&(e.key==="Enter"||e.key===" ")){e.preventDefault();openP(t.dataset.pt);}});
+/* ---- single county ---- */
+function candDetailObj(c){const ws=S.filter(s=>s.ov!=null).map(s=>[s,km(c.la,c.lo,s.lat,s.lon)]).filter(x=>x[1]<=60).sort((a,b)=>b[0].ov-a[0].ov).slice(0,2);
+  const cb={};D.comps.forEach(x=>{if(CB[x[0]]&&CB[x[0]].group==="steak"&&km(c.la,c.lo,x[1],x[2])<=25){const n=D.comp_brands[x[0]].name;cb[n]=(cb[n]||0)+1;}});
+  const r={title:c.t,place:c.pl,fips:c.id,lat:c.la,lon:c.lo,score:c.sc,pop_latest:c.pop,growth_pct:c.g,median_hh_income:c.inc,stores_in_county:c.sic,expected_stores:c.exp,headroom:c.hr,nearest_store:c.ns,nearest_store_km:c.nk,
+   txrh_25km:c.t25,txrh_100km:c.t100,comp_25km:c.c25,comp_brands:cb,trends_txrh:c.tr,dma:c.dma,dc_name:c.dcn,dc_km:c.dck,rpp:c.rpp,announced_km:c.ak,announced_near:c.an,
+   hot_stores:ws.map(([s,d])=>({name:s.n,state:s.s,km:d,wait:s.w,reviews:s.rc,rev_vs_age:s.rva,rating:s.r,overflow:s.ov}))};
+  CK.forEach((k,j)=>{r["f_"+k]=c.f[j];r["pts_"+k]=100*W[k]*c.f[j];});return r;}
+function vNextDetail(el,fips){const c=CBY[fips];const ri=RECBY[fips],r=ri!=null?REC[ri]:candDetailObj(c);selI=fips;const cb=r.comp_brands||{};const pos=PR.findIndex(x=>x.id===fips),prev=pos>0?PR[pos-1]:null,next=pos>=0&&pos<PR.length-1?PR[pos+1]:null;
   const groups=["demand","supply","cost"].map(g=>{const ks=Object.keys(W).filter(k=>GROUP[k]===g);const rows=g==="supply"?[["Supply-chain fit (see Method)",gpts(r,g),`${f1(gpts(r,g))}/${Math.round(gmax(g))}`,GCOL[g]]]:ks.map(k=>[LAB[k],r["pts_"+k],`${f1(r["pts_"+k])}/${Math.round(W[k]*100)}`,GCOL[g]]);return `<div class="eyebrow" style="margin-top:8px;color:var(--muted)">${g==="supply"?"Supply chain":g[0].toUpperCase()+g.slice(1)} · ${f1(gpts(r,g))} of ${Math.round(gmax(g))} pts</div>${hbars(rows,25)}`;}).join("");
+  const why=Object.entries(r.why_parts||{}).filter(([k])=>k!=="Supply chain");
   el.innerHTML=`<div class="lhead"><button class="btn" data-go="#/next">${ic("back")} Prospects</button><div></div>
-    <button class="ibtn" aria-label="Previous prospect" ${i===0?"disabled":""} data-go="#/next/${i-1}">${ic("back")}</button><button class="ibtn" aria-label="Next prospect" ${i>=REC.length-1?"disabled":""} data-go="#/next/${i+1}">${ic("chev")}</button></div>
-  <div class="ctop" style="margin-top:8px"><div class="rank">${r.rank}</div><div class="ttl"><b style="font-size:18px">${esc(r.title)}</b><span>${esc(headline3(r))}</span></div><div class="score"><b style="font-size:28px">${r.score.toFixed(0)}</b><span>of 100</span></div></div>
+    <button class="ibtn" aria-label="Previous match" ${prev?`data-go="#/next/${prev.id}"`:"disabled"}>${ic("back")}</button><button class="ibtn" aria-label="Next match" ${next?`data-go="#/next/${next.id}"`:"disabled"}>${ic("chev")}</button></div>
+  <div class="ctop" style="margin-top:8px"><div class="rank">${c.rank??"–"}</div><div class="ttl"><b style="font-size:18px">${esc(r.title)}</b><span>${c.rank?esc(headline3(r)):"Outside your current filters"}</span></div><div class="score"><b style="font-size:28px">${Math.round(pCustomW()?pScore(c):r.score)}</b><span>${pCustomW()?"your weights":"of 100"}</span></div></div>
   ${drawer("pd","key","Overview",`<div class="kgrid">${KPI.wait(r)}${KPI.rev(r)}${KPI.rivals(r)}${KPI.store(r)}</div>${riskChips(r)}`,{key:1,open:1})}
   ${drawer("pd","more","Market numbers",`<div class="kgrid">${KPI.growth(r)}${KPI.search(r)}${KPI.income(r)}${KPI.room(r)}</div>${Object.keys(cb).length?`<p class="note">Rivals ≤25 km: ${Object.entries(cb).map(([b,n])=>`${n} ${SHORTB[b]||b}`).join(" · ")}</p>`:""}`)}
   ${drawer("pd","score","Score breakdown",groups)}
-  ${(r.hot_stores||[]).length?drawer("pd","hot","Busiest nearby stores",`<div class="rows">${r.hot_stores.map(h=>row({t:esc(h.name)+", "+h.state,s:`${Math.round(h.km)} km · ${fmt(h.reviews)} reviews`,v:h.wait?h.wait+"<small style='display:inline'> min</small>":"–",vs:h.rev_vs_age!=null?`${h.rev_vs_age>=0?"+":""}${h.rev_vs_age}% reviews`:""})).join("")}</div>`,{count:r.hot_stores.length}):""}
-  ${drawer("pd","why","Why this spot",`${Object.entries(r.why_parts||{}).filter(([k])=>k!=="Supply chain").map(([k,v])=>`<p class="note"><b style="color:var(--text)">${esc(k)}.</b> ${esc(v)}</p>`).join("")}${/\bDC\b/.test(r.risk)?"":`<p class="note"><b style="color:var(--text)">Risk.</b> ${esc(r.risk)}</p>`}`)}`;
-  placeRecMarkers([i],i);
+  ${(r.hot_stores||[]).length?drawer("pd","hot","Busiest nearby stores",`<div class="rows">${r.hot_stores.map(h=>row({t:esc(h.name)+", "+h.state,s:`${Math.round(h.km/MI)} mi · ${fmt(h.reviews)} reviews`,v:h.wait?h.wait+"<small style='display:inline'> min</small>":"–",vs:h.rev_vs_age!=null?`${h.rev_vs_age>=0?"+":""}${h.rev_vs_age}% reviews`:""})).join("")}</div>`,{count:r.hot_stores.length}):""}
+  ${why.length?drawer("pd","why","Why this spot",`${why.map(([k,v])=>`<p class="note"><b style="color:var(--text)">${esc(k)}.</b> ${esc(v)}</p>`).join("")}${r.risk&&!/\bDC\b/.test(r.risk)?`<p class="note"><b style="color:var(--text)">Risk.</b> ${esc(r.risk)}</p>`:""}`):""}`;
+  placeCandMarkers([c],fips);
   fitPts([[r.lon,r.lat],...(r.hot_stores||[]).map(h=>{const s=S.find(x=>x.n===h.name&&x.s===h.state);return s?[s.lon,s.lat]:null;}).filter(Boolean)],10);}
-function eNext(param){Object.assign(on,{stores:1,recs:1,ann:0,hl:0,near:0});renderChips(["stores","recs","ann"]);syncLayers();
-  const el=$("#v-next .shbody");if(param!=null&&REC[param]){vNextDetail(el,+param);}else{vNextList(el);maybeFit();}
+function eNext(param){Object.assign(on,{stores:1,recs:1,ann:0,hl:0,near:0});renderChips(["stores","recs","ann"]);syncLayers();pRank();
+  let fips=null;if(param!=null){if(/^\d{5}$/.test(param)&&CBY[param])fips=param;else if(REC[param])fips=REC[param].fips;}
+  const el=$("#v-next .shbody");if(fips){pMapSync();vNextDetail(el,fips);}else{vNextList(el);maybeFit();}
   el.scrollTop=0;}
 /* ---------- Store Health ---------- */
 const HS={seg:"top",st:"",q:"",lim:15};
@@ -1228,7 +1348,7 @@ function route(){if(/^#\/pipeline/.test(location.hash)){location.replace("#/heal
   if(focus&&!FOCUS&&loaded)SAVED={center:map.getCenter(),zoom:map.getZoom(),bearing:map.getBearing(),pitch:map.getPitch(),padding:{...map.getPadding()},mapH:fitMapH,view:cur};
   let back=false;if(!focus&&FOCUS&&SAVED){FOCUS=false;back=SAVED.view===v;if(back&&SAVED.mapH&&!isDesk()){fitMapH=SAVED.mapH;document.documentElement.style.setProperty("--mapH",SAVED.mapH+"px");map.resize();}const c={...SAVED};delete c.mapH;delete c.view;map.jumpTo(c);SAVED=null;}
   FOCUS=focus;
-  openMore(false);popup.remove();setFocus([]);toggleDD(false);closeF();if(v!=="store"){setStoreCtx(null);hideRival();}if(v!=="next")clearMarkers();if(v!=="demand")setHL([]);if(v!=="health"&&storeFilter)setStoreFilter(null);
+  openMore(false);popup.remove();setFocus([]);toggleDD(false);closeF();if(v!=="store"){setStoreCtx(null);hideRival();}if(v!=="next"){clearMarkers();recallRestore();}if(v!=="demand")setHL([]);if(v!=="health"&&storeFilter)setStoreFilter(null);
   const sec=$("#v-"+v);
   if(!rendered[v]&&VIEWS[v][0]){VIEWS[v][0](sec.querySelector(".shbody")||sec.querySelector(".vbody"));rendered[v]=1;}
   if(cur!==v){$$(".view").forEach(x=>x.classList.toggle("on",x===sec));sec.scrollTop=0;const vb=sec.querySelector(".vbody");if(vb)vb.scrollTop=0;const sb=sec.querySelector(".shbody");if(sb)sb.scrollTop=0;if(!isDesk()){window.scrollTo(0,0);}setSheet("peek");}
