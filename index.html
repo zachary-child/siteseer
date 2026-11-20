@@ -16,7 +16,7 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath fill='%235b4fe9' d='M16 1.5C9.1 1.5 3.6 6.9 3.6 13.6 3.6 22.4 16 30.5 16 30.5S28.4 22.4 28.4 13.6C28.4 6.9 22.9 1.5 16 1.5Z'/%3E%3Cpath fill='%23fff' d='M8.2 13.6C10.2 10.4 13 8.8 16 8.8S21.8 10.4 23.8 13.6C21.8 16.8 19 18.4 16 18.4S10.2 16.8 8.2 13.6Z'/%3E%3Ccircle cx='16' cy='13.6' r='3.3' fill='%234338ca'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
 <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
-<script src="data.js"></script>
+<script src="data.js?v=6.2"></script>
 <style>
 :root{--bg:#f7f3ec;--panel:#fff;--panel2:#f3ede4;--line:#e6ddd0;--text:#241F20;--muted:#6b5f55;--brand:#A5022F;--brand-t:#A5022F;--brand2:#991A36;--brand-soft:#f8e6ea;--brand-ink:#7d0224;--tan:#D0BC9B;--wood:#A66648;
  --demand:#A66648;--supply:#0072B2;--cost:#9a7b00;--up:#047857;--up-bg:#e7f6ef;--down:#b4410e;--down-bg:#fdeee6;--flat-bg:#efe9e0;--warn:#9a3412;--warn-bg:#fff4ec;
@@ -318,10 +318,23 @@ details.sec>div{padding:0 14px 12px}
  .more{padding-left:calc(12px + var(--sal));padding-right:calc(12px + var(--sar))}
 }
 .snaptop{display:none}
-/* one-time install hint (iOS Safari only, never installed/desktop) */
-.a2hs{position:fixed;left:50%;transform:translateX(-50%);top:calc(var(--top) + var(--sat) + 52px);white-space:nowrap;z-index:30;display:flex;align-items:center;gap:6px;max-width:calc(100% - 24px);padding:3px 4px 3px 11px;border-radius:999px;background:rgba(17,17,17,.82);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);color:#f5efe6;font-size:11.5px;border:1px solid rgba(255,255,255,.14);box-shadow:var(--shadow);opacity:0;transition:opacity .3s ease;pointer-events:none}
-.a2hs.on{opacity:1;pointer-events:auto}
-.a2hs button{border:0;background:none;color:inherit;min-width:28px;min-height:28px;display:flex;align-items:center;justify-content:center;padding:0;opacity:.7}
+/* v6.2 map chips: layer chips scroll, Compare pinned right */
+.chips{justify-content:space-between;overflow:visible}
+.chiprow{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;min-width:0;flex:0 1 auto;pointer-events:auto;padding-right:2px}
+.chiprow::-webkit-scrollbar{display:none}.chiprow .chip{flex:none}
+.chips .cmpbtn{flex:none;margin-left:auto}
+.cmpdd{left:auto;right:8px}
+/* v6.2 one scope control row */
+.ctlrow{display:flex;align-items:center;gap:8px;margin:10px 0 4px;min-width:0}
+.ctlrow .scopebar{display:flex;flex:0 1 auto;min-width:0;margin:0}
+.ctlrow>.seg{flex:none;margin:0}
+.spill{position:relative;display:flex;align-items:center;gap:6px;min-height:36px;min-width:0;max-width:100%;padding:0 12px;border-radius:999px;background:var(--panel2);border:1px solid var(--line);font-size:13px;cursor:pointer}
+.spill b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;font-weight:600}
+.spill .car{flex:none;color:var(--muted);font-size:11px}
+.spill .stpick{position:absolute;inset:0;width:100%;height:100%;opacity:0;border:0;margin:0;padding:0;max-width:none;min-height:0;font-size:16px;cursor:pointer;z-index:1}
+.spill.on{padding-right:4px}
+.spill .sx{position:relative;z-index:2;margin-left:2px}
+.spill:focus-within{outline:3px solid var(--tan);outline-offset:2px}
 </style>
 </head>
 <body>
@@ -561,7 +574,7 @@ function showRival(j){const x=D.comps[j],c=CB[x[0]],t=S[x[6]];popup.remove();
 function hideRival(){$("#rcard").classList.remove("on");}
 /* chips + compare dropdown */
 let chipSet=[];
-function renderChips(keys){chipSet=keys;$("#chips").innerHTML=`<button class="chip cmpbtn" aria-haspopup="dialog" aria-expanded="${$("#cmpdd").classList.contains("on")}"></button>`+keys.map(k=>`<button class="chip" data-l="${k}" aria-pressed="${!!on[k]}">${LAYERS[k].sw}${LAYERS[k].label}</button>`).join("");syncLayers();}
+function renderChips(keys){chipSet=keys;$("#chips").innerHTML=`<div class="chiprow">${keys.map(k=>`<button class="chip" data-l="${k}" aria-pressed="${!!on[k]}">${LAYERS[k].sw}${LAYERS[k].label}</button>`).join("")}</div><button class="chip cmpbtn" aria-haspopup="dialog" aria-expanded="${$("#cmpdd").classList.contains("on")}"></button>`;syncLayers();}
 $("#chips").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;if(b.classList.contains("cmpbtn")){toggleDD();return;}on[b.dataset.l]=on[b.dataset.l]?0:1;syncLayers();});
 function ddHTML(){const grp=(g,t)=>`<h4>${t}</h4>`+CODES.filter(c=>CB[c].group===g).map(c=>`<label class="cbx"><input type="checkbox" value="${c}" ${CMP.has(c)?"checked":""}><span class="sw2" style="background:${CB[c].col}"></span>${esc(CB[c].short)}<em>${fmt(CB[c].n)}</em></label>`).join("");
   return grp("steak","Steakhouses")+grp("casual","Casual dining")+`<p class="note">Locations: All the Places (brand store locators). ${esc(D.comp_unavailable.join(" and "))} returned no data in the latest run, so they're not listed.</p><div style="display:flex;gap:6px;padding:0 6px 6px"><button class="btn" id="ddClear" style="flex:1">Clear</button><button class="btn primary" id="ddDone" style="flex:1">Done</button></div>`;}
@@ -595,12 +608,11 @@ function computeScope(){if(loaded){const v=viewBox();const ref=SC.st?STB[SC.st].
   SR=REC.map((_,i)=>i).filter(i=>inS(REC[i].lat,REC[i].lon,REC[i].st));
   SA=D.announced.map((_,i)=>i).filter(i=>{const a=D.announced[i];return a.lat!=null?inS(a.lat,a.lon,a.state):(!SC.box&&(!SC.st||a.state===SC.st));});}
 function scopeLabel(){const st=SC.st?STB[SC.st].n:null;return st?(SC.box?`${st} · map area`:st):(SC.box?"Map area":"All US");}
-const scopeBar=()=>`<div class="scopebar" role="status" aria-live="polite"></div>`;
-function updateScopeUI(){const n=SS.length,lab=scopeLabel(),on=!isAll();
-  $$(".scopebar").forEach(el=>{el.innerHTML=`<span class="spill${on?" on":""}">${ic("pin")}<b>${esc(lab)}</b><span>· ${fmt(n)} store${n===1?"":"s"}</span>${on?`<button class="sx" data-reset aria-label="Reset to All US">${ic("x")}</button>`:""}</span>
-   <select class="stpick" aria-label="Filter to a state"><option value="">${SC.st?"All US":"State ▾"}</option>${STLIST.map(s=>`<option value="${s.st}" ${s.st===SC.st?"selected":""}>${esc(s.n)}</option>`).join("")}</select>`;
+const scopeBar=(extra="")=>`<div class="ctlrow"><div class="scopebar" role="status" aria-live="polite"></div>${extra}</div>`;
+function updateScopeUI(){const lab=scopeLabel(),on=!isAll();
+  $$(".scopebar").forEach(el=>{el.innerHTML=`<span class="spill${on?" on":""}">${ic("pin")}<b>${esc(lab)}</b><span class="car" aria-hidden="true">▾</span><select class="stpick" aria-label="Area: ${esc(lab)}. Choose a state"><option value="">All US</option>${STLIST.map(s=>`<option value="${s.st}" ${s.st===SC.st?"selected":""}>${esc(s.n)}</option>`).join("")}</select>${on?`<button class="sx" data-reset aria-label="Reset to All US">${ic("x")}</button>`:""}</span>`;
    el.querySelector(".stpick").onchange=e=>{const v=e.target.value;v?selectState(v):clearScope();};});}
-const emptyCard=(what="Texas Roadhouses")=>`<div class="card empty"><b>No ${what} in this area</b><span>${esc(scopeLabel())}. Zoom out, pick another state, or reset.</span><button class="btn primary" data-reset>${ic("x")} Reset to All US</button></div>`;
+const emptyCard=(what="Texas Roadhouses")=>`<div class="card empty"><b>No ${what} in this area</b><span>Zoom out, pick another state, or reset.</span><button class="btn primary" data-reset>${ic("x")} Reset to All US</button></div>`;
 const sampleNote=(k,n)=>`<span class="samp">${fmt(k)} of ${fmt(n)}</span>`;
 /* number tweening */
 const TWV={};
@@ -737,7 +749,7 @@ function hmDraw(){const el=$("#hmK");if(!el)return;updateScopeUI();const st=SS.m
   const growth=`<div class="kgrid">${K("target","Prospects",`${tw("hm-r2",recs.length)}<small> of ${REC.length}</small>`,`${gbar(recs.length,0,REC.length,"var(--rec)")}<span>${recs.length?"ranked counties":"none here"}</span>`,`${recs.length} of ${REC.length} prospective locations in ${scopeLabel()}`)}
    ${K("crane","Pipeline",`${tw("hm-p",SA.length)}<small> sites</small>`,`${SA.length?stack(stg.map((k2,k)=>[k2/SA.length,STAGES[k][1]])):""}<span>${SA.length?`${stg[0]} opening soon`:"none here"}</span>`,`${SA.length} pipeline sites in ${scopeLabel()}`)}</div>
    ${recs.length?`<div class="plist">${SR.slice(0,3).map(i=>prow(i)).join("")}</div>`:""}<button class="btn block" data-go="#/next" style="margin-top:8px">${all?`All ${REC.length} prospects`:`${recs.length} prospect${recs.length===1?"":"s"} here`} ${ic("chev")}</button>`;
-  el.innerHTML=(top?ins1("target",`#${top.rank} prospect${all?"":" here"}: ${esc(top.title)} · ${Math.round(top.score)}`,`#/next/${SR[0]}`):(SS.length?ins1("target",`No prospects in ${esc(scopeLabel())}`):""))+
+  el.innerHTML=(top?ins1("target",`#${top.rank} prospect${all?"":" here"}: ${esc(top.title)} · ${Math.round(top.score)}`,`#/next/${SR[0]}`):"")+
    drawer("home","key","Key numbers",key,{key:1,open:1})+
    drawer("home","growth","Prospects & pipeline",growth,{count:`${recs.length} · ${SA.length}`})+
    drawer("home","ins","Insights",ichips(natInsights()),{count:"national"})+
@@ -780,7 +792,7 @@ const HS={seg:"top",st:"",q:"",lim:15};
 const STATES=[...new Set(S.map(s=>s.s))].sort();
 function hsSet(){return SS.map(i=>[S[i],i]).filter(([s])=>(!HS.q||(s.n+" "+s.c).toLowerCase().includes(HS.q.toLowerCase())));}
 let HSEG="stores";
-function vHealth(el){el.innerHTML=`<div class="toprow">${seg("stSeg",[["stores","Stores"],["pipeline","Pipeline"]],HSEG)}</div>${scopeBar()}<div id="hsWrap"></div>`;
+function vHealth(el){el.innerHTML=`${scopeBar(seg("stSeg",[["stores","Stores"],["pipeline","Pipeline"]],HSEG))}<div id="hsWrap"></div>`;
   $("#stSeg").onclick=e=>{const b=e.target.closest("button");if(!b)return;location.hash=b.dataset.k==="pipeline"?"#/health/pipeline":"#/health";};hRender();}
 function hRender(){const w=$("#hsWrap");if(!w)return;$$("#stSeg button").forEach(x=>x.setAttribute("aria-pressed",x.dataset.k===HSEG));
   if(HSEG==="pipeline"){w.innerHTML=`<div id="plB"></div>`;plDraw();return;}
@@ -792,7 +804,7 @@ function hsDraw(){const set=hsSet(),r=set.filter(([s])=>s.r!=null),rs=r.map(([s]
   const avg=rs.length?rs.reduce((a,b)=>a+b,0)/rs.length:null,hist=[4.1,4.2,4.3,4.4,4.5].map((v,k)=>rs.filter(x=>rcls(x)===k).length);
   if(!SS.length){$("#hsK").innerHTML=emptyCard();$("#hsL").innerHTML="";updateScopeUI();return;}
   const pct=k=>rs.length?Math.round(k/rs.length*100):0,hi=rs.filter(x=>x>=4.5).length,lo=rs.filter(x=>x<4.15).length;
-  $("#hsK").innerHTML=`<div class="kgrid">${K("store","Stores",tw("hs-n",set.length),`${gbar(r.length,0,Math.max(1,set.length),"#21918c")}${sampleNote(r.length,set.length)}<span>rated</span>`,`${set.length} stores, ${r.length} rated`)}
+  $("#hsK").innerHTML=`<div class="kgrid">${K("store","Stores",tw("hs-n",set.length),`<span>${(n=>`${n} state${n===1?"":"s"}`)(new Set(set.map(([s])=>s.s)).size)}</span>`,`${set.length} stores`)}
    ${avg?K("star","Avg rating",`${tw("hs-r",+avg.toFixed(2),2)}<small>★</small>`,`${mbars(hist,"#21918c")}${sampleNote(r.length,set.length)}`,`Average rating ${avg.toFixed(2)} from ${r.length} of ${set.length} stores`):K("star","Avg rating","Not sampled",`<span>0 of ${set.length} rated</span>`,"","ns")}
    ${K("grow","4.5★ and up",tw("hs-h",hi),`<span>${pct(hi)}% of ${fmt(rs.length)} rated</span>`)}
    ${K("warn","4.1★ or below",tw("hs-l",lo),`<span>${pct(lo)}% of ${fmt(rs.length)} rated</span>`)}</div>`;tweenIn($("#hsK"));updateScopeUI();
@@ -828,7 +840,7 @@ let FLS=FL;
 function dmDraw(){if(!$("#dmK"))return;updateScopeUI();const set=SS.map(i=>S[i]),wt=set.filter(s=>s.w!=null),n55s=wt.filter(s=>s.w>=55).length;FLS=FL.filter(([s])=>inS(s.lat,s.lon,s.s));
   const avgW=wt.length?wt.reduce((a,s)=>a+s.w,0)/wt.length:null,nearRec=SR.filter(i=>FLS.some(([s])=>km(s.lat,s.lon,REC[i].lat,REC[i].lon)<=60)).length;
   $("#dmK").innerHTML=!set.length?emptyCard():`<div class="kgrid">${K("wait","55+ min waits",tw("dm-55",n55s),`${gbar(n55s,0,Math.max(1,wt.length),"var(--cost)")}${sampleNote(n55s,wt.length)}<span>with waits</span>`,`${n55s} of ${wt.length} stores with wait data run 55+ minutes`)}
-   ${K("warn","Over capacity",tw("dm-f",FLS.length),`<span>${sampleNote(wt.length,set.length)} with waits</span>`)}
+   ${K("warn","Over capacity",tw("dm-f",FLS.length),`<span>${sampleNote(FLS.length,wt.length)} with waits</span>`)}
    ${avgW!=null?K("gauge","Avg wait",`${tw("dm-w",+avgW.toFixed(1),1)}<small> min</small>`,`${gbar(avgW,30,60,"var(--cost)",WAVG)}<span>chain ${Math.round(WAVG)}</span>`):K("gauge","Avg wait","Not sampled",`<span>0 of ${set.length} with waits</span>`,"","ns")}
    ${K("target","Prospects nearby",`${tw("dm-r",nearRec)}<small> of ${SR.length}</small>`,`<span>≤60 km of a flagged store</span>`)}</div>`;tweenIn($("#dmK"));
   $("#dmL").innerHTML=FLS.length?FLS.slice(0,dmLim).map(([s,i,[ri,d]],k)=>row({rk:k+1,t:esc(s.n)+", "+s.s,s:`→ #${REC[ri].rank} ${esc(REC[ri].title)} · ${Math.round(d)} km`,v:`${s.w}<small style="display:inline"> min</small>`,attr:`data-go="#/store/${i}"`,bar:`${gbar(s.w,30,60,"var(--cost)",WAVG)}${delta(s.rva,"%")}`})).join("")+(FLS.length>dmLim?`<button class="btn block" id="dmMore">Show more (${FLS.length-dmLim})</button>`:""):`<p class="note">No over-capacity stores flagged in ${esc(scopeLabel())}.</p>`;
@@ -849,20 +861,18 @@ const MK=D.markets.filter(m=>m.rivals_total>=6).sort((a,b)=>b.rivals_total/(b.tx
 const mkStates=m=>((m.name.split(",")[1]||"").trim().split("-"));
 let cmSeg="brands";
 function vCompete(el){
-  el.innerHTML=`${scopeBar()}<div class="filters hscroll" id="cmTog" role="group" aria-label="Brands to compare"></div><div id="cmBody"></div>
+  el.innerHTML=`${scopeBar()}<div id="cmBody"></div>
   ${drawer("cmp","mk","Metros & states",`${seg("cmSeg",[["brands","Rival-heavy metros"],["states","Under-built states"]],cmSeg)}<div id="cmL"></div>`)}`;
   $("#cmSeg").onclick=e=>{const b=e.target.closest("button");if(!b)return;cmSeg=b.dataset.k;$$("#cmSeg button").forEach(x=>x.setAttribute("aria-pressed",x===b));cmList();};
-  $("#cmTog").onclick=e=>{const b=e.target.closest("[data-cb]");if(!b)return;const c=b.dataset.cb;CMP.has(c)?CMP.delete(c):CMP.add(c);if($("#cmpdd").classList.contains("on"))toggleDD(true);cmpChanged();};
   cmDraw();}
-function cmDraw(){if(!$("#cmTog"))return;updateScopeUI();
-  $("#cmTog").innerHTML=CODES.map(c=>`<button class="chip" data-cb="${c}" aria-pressed="${CMP.has(c)}"><span class="sw2" style="background:${CB[c].col}"></span>${esc(CB[c].short)}</button>`).join("");
+function cmDraw(){if(!$("#cmBody"))return;updateScopeUI();
   const sel=CODES.filter(c=>CMP.has(c)),T=SS.length,all=isAll(),where=all?"US":scopeLabel();
-  if(!sel.length){$("#cmBody").innerHTML=ins1("rival","Pick brands above to compare in this area")+drawer("cmp","key","Key numbers",`<div class="kgrid">${K("store","Texas Roadhouse",tw("cm-t",T),`<span>in ${esc(where)}</span>`)}</div>`,{key:1,open:1});tweenIn($("#cmBody"));cmList();return;}
+  if(!sel.length){$("#cmBody").innerHTML=drawer("cmp","key","Key numbers",`<div class="kgrid">${K("store","Texas Roadhouse",tw("cm-t",T),`<span>in this area</span>`)}${K("rival","Brands","<span style=\"font-size:15px\">None yet</span>",`<span>pick in Compare ▾ on the map</span>`,"","ns")}</div>`,{key:1,open:1});tweenIn($("#cmBody"));cmList();return;}
   const st=sel.map(c=>[c,cstat(c)]);
   const bars=[["TX",T,"#A5022F","Texas Roadhouse"],...st.map(([c,x])=>[c,x.n,CB[c].col,CB[c].short])],mx=Math.max(1,...bars.map(a=>a[1]));
-  const keyT=`<div class="kgrid">${K("store","Texas Roadhouse",tw("cm-t",T),`<span>in ${esc(where)}</span>`,`${T} Texas Roadhouse in ${where}`)}${st.slice(0,3).map(([c,x])=>K("rival",CB[c].short,tw("cm-k-"+c,x.n),`${gbar(x.n,0,Math.max(x.n,T,1),CB[c].col,T)}<span>${T?`${(x.n/T).toFixed(1)}x TXRH`:"no TXRH here"}${x.n?` · ${Math.round(x.ov/x.n*100)}% ≤10 km`:""}</span>`,`${x.n} ${CB[c].name} in ${where}`)).join("")}</div>`;
+  const keyT=`<div class="kgrid">${K("store","Texas Roadhouse",tw("cm-t",T),`<span>in this area</span>`,`${T} Texas Roadhouse in ${where}`)}${st.slice(0,3).map(([c,x])=>K("rival",CB[c].short,tw("cm-k-"+c,x.n),`${gbar(x.n,0,Math.max(x.n,T,1),CB[c].col,T)}<span>${T?`${(x.n/T).toFixed(1)}x TXRH`:"no TXRH here"}${x.n?` · ${Math.round(x.ov/x.n*100)}% ≤10 km`:""}</span>`,`${x.n} ${CB[c].name} in ${where}`)).join("")}</div>`;
   const ov=st.reduce((a,[,x])=>a+x.n,0);
-  $("#cmBody").innerHTML=ins1("rival",`${fmt(ov)} compared locations vs ${fmt(T)} TXRH in ${esc(where)}`)+drawer("cmp","key","Key numbers",(!T&&!ov)?emptyCard("Texas Roadhouses or compared brands"):keyT,{key:1,open:1})+
+  $("#cmBody").innerHTML=drawer("cmp","key","Key numbers",(!T&&!ov)?emptyCard("Texas Roadhouses or compared brands"):keyT,{key:1,open:1})+
    st.map(([c,x])=>{const b=CB[c],ratio=T?x.n/T:null;return drawer("cmp","b-"+c,`<span class="sw2" style="background:${b.col}"></span>${esc(b.name)}`,`
    <div class="kgrid">${K("store",all?"Locations":"In this area",tw("cm-n-"+c,x.n),`${gbar(x.n,0,Math.max(x.n,T,1),b.col,T)}<span>TXRH ${fmt(T)}</span>`,`${x.n} ${b.name} vs ${T} Texas Roadhouse in ${where}`)}
     ${K("rival","Per TXRH",ratio==null?`<span style="font-size:15px">no TXRH</span>`:`${tw("cm-r-"+c,+ratio.toFixed(1),1)}<small>x</small>`,`<span class="ratio"><i style="width:${x.n/Math.max(1,x.n+T)*100}%;background:${b.col}"></i><i style="width:${T/Math.max(1,x.n+T)*100}%;background:#A5022F"></i></span><span>${fmt(x.n)} vs ${fmt(T)}</span>`,ratio==null?`No Texas Roadhouse in ${where}`:`${ratio.toFixed(1)} ${b.short} per Texas Roadhouse`)}
@@ -956,12 +966,12 @@ function plDraw(){const el=$("#plB");if(!el)return;updateScopeUI();const A=SA.ma
 let puSeg="top";
 function vPulse(el){const so=D.social,sh=so.sentiment_share,days=so.weekly_counts.filter(d=>(new Date(d.end)-new Date(d.start))>20*3600e3);
   const fmtD=s=>new Date(s).toLocaleDateString("en-US",{month:"short",day:"numeric",timeZone:"America/Denver"});
-  el.innerHTML=`${head("Market","Brand Pulse",`X posts ${fmtD(so.window_utc[0])}–${fmtD(so.window_utc[1])} · Google search interest by TV market`)}
+  el.innerHTML=`${scopeBar()}
   ${drawer("pulse","x",`On X · ${fmtD(so.window_utc[0])}–${fmtD(so.window_utc[1])}`,`<div class="kgrid">${K("chat","Posts · 7 days",fmt(so.weekly_total),spark(days.map(d=>d.tweet_count)),`${so.weekly_total} posts on X in the last 7 days`)}
    ${K("people","@"+so.brand_account.username,fmt(so.brand_account.followers),`<span>followers · ${fmt(so.brand_account.posts)} posts</span>`)}
    ${K("star","Positive",`${Math.round(sh.positive*100)}<small>%</small>`,stack([[sh.positive,"#009E73"],[sh.neutral,"var(--line)"],[sh.negative,"#D55E00"]]),`Sentiment of ${so.n_posts} sampled posts: ${Math.round(sh.positive*100)}% positive, ${Math.round(sh.neutral*100)}% neutral, ${Math.round(sh.negative*100)}% negative`)}
-   ${K("wait","Mention waits",`${so.wait_related_posts}<small> of ${so.n_posts}</small>`,gbar(so.wait_related_posts,0,so.n_posts,"var(--cost)"))}</div><p class="note">National, not map-scoped.</p>`,{open:1,count:"national"})}
-  ${drawer("pulse","tv","Search interest by TV market",`${scopeBar()}${seg("puSeg",[["top","Highest"],["none","No store yet"]],puSeg)}<div id="puL"></div>`)}
+   ${K("wait","Mention waits",`${so.wait_related_posts}<small> of ${so.n_posts}</small>`,gbar(so.wait_related_posts,0,so.n_posts,"var(--cost)"))}</div>`,{open:1,count:"national"})}
+  ${drawer("pulse","tv","Search interest by TV market",`${seg("puSeg",[["top","Highest"],["none","No store yet"]],puSeg)}<div id="puL"></div>`)}
   ${drawer("pulse","themes","What people talk about",`${hbars(Object.entries(so.themes),Math.max(...Object.values(so.themes)),"var(--brand)")}<p class="note">Themes in ${so.n_posts} sampled posts.</p>`)}
   ${drawer("pulse","posts","Sample posts",`${so.examples.slice(0,4).map(p=>`<div class="post">${esc(p.text)}<span>${p.label} · ${fmt(p.likes)} likes · <a href="${esc(p.url)}" target="_blank" rel="noopener">view on X</a></span></div>`).join("")}`)}`;
   $("#puSeg").onclick=e=>{const b=e.target.closest("button");if(!b)return;puSeg=b.dataset.k;$$("#puSeg button").forEach(x=>x.setAttribute("aria-pressed",x===b));puDraw();};puDraw();}
@@ -973,7 +983,7 @@ SCOPED.pulse=puDraw;
 
 /* ---------- About ---------- */
 function vAbout(el){const s2=D.summary_v2;const ex=Object.entries(s2.excl_counts),exmax=Math.max(...ex.map(e=>e[1]));
-  el.innerHTML=`<div class="card" style="display:flex;align-items:center;gap:14px"><svg viewBox="0 0 32 32" style="width:48px;height:48px;flex:none">${markSVG()}</svg><div><div class="word" style="font-size:22px">Site<i>seer</i></div><div class="sub">Location intelligence for restaurant brands</div><div class="sub">Data snapshot ${esc(D.generated)}</div></div></div>
+  el.innerHTML=`<div class="card" style="display:flex;align-items:center;gap:14px"><svg viewBox="0 0 32 32" style="width:48px;height:48px;flex:none">${markSVG()}</svg><div><div class="word" style="font-size:22px">Site<i>seer</i></div><div class="sub">Location intelligence for restaurant brands</div></div></div>
   <h2>Workspace</h2><div class="rows"><div class="row" style="cursor:default"><img src="${BADGE}" alt="" style="width:32px;height:32px"><span class="rt"><b>Texas Roadhouse</b><span>${fmt(S.length)} stores · snapshot ${esc(D.generated)}</span></span><span></span></div></div>
   <h2>Settings</h2><div class="filters"><button class="btn" id="abTheme">${ic(theme==="dark"?"sun":"moon")} ${theme==="dark"?"Light":"Dark"} mode</button><button class="btn" id="abReplay">${ic("play")} Replay intro</button></div>
   <h2>Method</h2>
@@ -985,7 +995,7 @@ function vAbout(el){const s2=D.summary_v2;const ex=Object.entries(s2.excl_counts
   <details class="sec"><summary>Limitations</summary><div><ul class="note" style="padding-left:18px;margin:0">
    <li>Ratings and waits are a sample (${fmt(D.summary.n_rated)} of ${fmt(D.summary.n_stores)} stores rated; ${D.wait.n} with waits).</li><li>Store age is estimated from store number.</li><li>Rivals are counted, not rated; metro assignment is approximate.</li>
    <li>The DC network is a proxy; the distributor isn't named.</li><li>Cost = BEA regional price parity, not rent or construction cost.</li><li>Sites are county population centers, not parcels.</li><li>Search interest is relative (0–100) across TV markets.</li><li>X sentiment is from ${D.social.n_posts} sampled posts.</li>${(D.coord_fixes||[]).filter(f=>!f.unresolved).map(f=>`<li>${esc(f.store)}: ${esc(f.reason)}; located with the US Census geocoder (${esc(f.matched)}).</li>`).join("")}</ul></div></details>
-  <p class="disc">Built on public data · Not affiliated with or endorsed by Texas Roadhouse, Inc. · Data snapshot ${esc(D.generated)}</p>`;
+  <p class="disc">Built on public data · Not affiliated with or endorsed by Texas Roadhouse, Inc.</p>`;
   $("#abTheme").onclick=toggleTheme;$("#abReplay").onclick=()=>startIntro(true);}
 /* ================= router + nav ================= */
 const NAV=[["home","Overview","home","Home"],["next","Prospective Locations","target","Prospects"],["health","Stores","heart","Stores"],["demand","Demand & Capacity","gauge","Demand"],["compete","Compare Brands","rival","Compare"],["store","Store","store"],["pulse","Brand Pulse","pulse"],["about","About & Method","info"]];
@@ -1069,17 +1079,6 @@ addEventListener("keydown",e=>{if(introOn&&(e.key==="Escape"||e.key==="Enter"||e
 /* ================= init ================= */
 route();
 if(!sessionStorage.getItem("ssIntroSeen"))startIntro(false);else $("#app").classList.remove("pre");
-/* v6.1 one-time install hint: iPhone/iPad Safari only, not when already opened from the Home Screen, never on desktop */
-(function(){try{const ua=navigator.userAgent,ios=/iPhone|iPad|iPod/.test(ua)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1),
-  safari=/Safari\//.test(ua)&&!/CriOS|FxiOS|EdgiOS|OPiOS|GSA\//.test(ua),standalone=navigator.standalone===true||matchMedia("(display-mode: standalone)").matches||matchMedia("(display-mode: fullscreen)").matches;
-  window.SS_ENV={ios,safari,standalone};document.documentElement.classList.toggle("standalone",standalone);
-  if(!ios||!safari||standalone||isDesk()||localStorage.getItem("ssA2HS"))return;
-  const el=document.createElement("div");el.className="a2hs";el.setAttribute("role","note");
-  el.innerHTML=`<span>Full screen: Share, then Add to Home Screen</span><button aria-label="Dismiss">${ic("x")}</button>`;document.body.appendChild(el);
-  const done=()=>{el.classList.remove("on");try{localStorage.setItem("ssA2HS","1");}catch(_){}setTimeout(()=>el.remove(),400);};
-  el.querySelector("button").onclick=done;
-  const wait=()=>{const sp=document.getElementById("splash");if(sp&&!sp.hidden&&!sp.classList.contains("out")){setTimeout(wait,800);return;}
-    setTimeout(()=>{el.classList.add("on");setTimeout(done,9000);},2500);};wait();}catch(_){}})();
 </script>
 </body>
 </html>
