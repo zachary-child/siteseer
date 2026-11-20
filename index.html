@@ -16,7 +16,7 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath fill='%235b4fe9' d='M16 1.5C9.1 1.5 3.6 6.9 3.6 13.6 3.6 22.4 16 30.5 16 30.5S28.4 22.4 28.4 13.6C28.4 6.9 22.9 1.5 16 1.5Z'/%3E%3Cpath fill='%23fff' d='M8.2 13.6C10.2 10.4 13 8.8 16 8.8S21.8 10.4 23.8 13.6C21.8 16.8 19 18.4 16 18.4S10.2 16.8 8.2 13.6Z'/%3E%3Ccircle cx='16' cy='13.6' r='3.3' fill='%234338ca'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
 <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
-<script src="data.js?v=6.5"></script>
+<script src="data.js?v=6.6"></script>
 <style>
 :root{--bg:#f7f3ec;--panel:#fff;--panel2:#f3ede4;--line:#e6ddd0;--text:#241F20;--muted:#6b5f55;--brand:#A5022F;--brand-t:#A5022F;--brand2:#991A36;--brand-soft:#f8e6ea;--brand-ink:#7d0224;--tan:#D0BC9B;--wood:#A66648;
  --demand:#A66648;--supply:#0072B2;--cost:#9a7b00;--up:#047857;--up-bg:#e7f6ef;--down:#b4410e;--down-bg:#fdeee6;--flat-bg:#efe9e0;--warn:#9a3412;--warn-bg:#fff4ec;
@@ -421,6 +421,14 @@ h2.stgh{display:flex;align-items:center;gap:8px}h2.stgh .cnt{font-size:12px;colo
 /* v6.5 chip row: hide the Stores logo when its count badge shows on narrow phones */
 @media(max-width:430px){.stbtn.part .sw{display:none}#chips .chip{padding:0 8px}}
 @media(max-width:380px){#chips,#chips .chiprow{gap:4px}#chips .chip{padding:0 7px;font-size:12px}}
+/* v6.6 Home is one screen on phones: map + key tiles, no second snap stop */
+@media(max-width:899px){html.onescreen{scroll-snap-type:none}html.onescreen #v-home .vbody{min-height:0;box-shadow:0 -8px 24px rgba(0,0,0,.25)}html.onescreen #v-home .grab{display:none}html.onescreen #v-home .vbody .shbody{padding-top:4px}
+ body.fopen .mapbl,body.fopen #legend{opacity:0;visibility:hidden;pointer-events:none}}
+.mapbl{transition:opacity .15s}
+/* v6.6 funnel never overlaps the tile label: the label truncates before the icon */
+.k.kf .kh{padding-right:0;margin-right:16px}
+.kh span{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.srch{font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin:14px 0 6px}
 </style>
 </head>
 <body>
@@ -520,7 +528,9 @@ const ringSw=(c,sz=14)=>`<i class="ringsw" style="border-color:${c};width:${sz}p
 function loadImg(src){return new Promise(res=>{const i=new Image(64,64);i.onload=()=>res(i);i.onerror=()=>res(null);i.src=src;});}
 const STAGES=[["Opening soon","#009E73"],["Under construction","#D55E00"],["Approved","#0072B2"],["Proposed / reported","#9aa3ad"]];
 const IMGS={};
-const imgReady=Promise.all([...RAMP.map((r,k)=>loadImg(svgURL(pinSVG(r[1]))).then(i=>IMGS["h"+k]=i)),...[0,1,2,3].map(k=>loadImg(svgURL(RING_SVG(STAGES[k][1]))).then(i=>IMGS["ann"+k]=i)),loadImg(svgURL(BRAND_MARK_SVG)).then(i=>IMGS.mark=i)]);
+/* v6.6 calm map: one neutral style unless a rating filter / stage filter is active */
+const NEUTRAL="#D0BC9B";
+const imgReady=Promise.all([...RAMP.map((r,k)=>loadImg(svgURL(pinSVG(r[1]))).then(i=>IMGS["h"+k]=i)),...[0,1,2,3].map(k=>loadImg(svgURL(RING_SVG(STAGES[k][1]))).then(i=>IMGS["ann"+k]=i)),loadImg(svgURL(RING_SVG(NEUTRAL))).then(i=>IMGS.annN=i),loadImg(svgURL(pinSVG(NEUTRAL))).then(i=>IMGS.hN=i),loadImg(svgURL(BRAND_MARK_SVG)).then(i=>IMGS.mark=i)]);
 
 /* ---------- icons ---------- */
 const ICON={home:'<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',target:'<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1"/>',heart:'<path d="M20.5 8.5c0 5-8.5 11-8.5 11S3.5 13.5 3.5 8.5A4.5 4.5 0 0 1 12 6.4a4.5 4.5 0 0 1 8.5 2.1z"/><path d="M7 11h2.5l1.5-2.5 2 5 1.5-2.5H17"/>',gauge:'<path d="M4 17a8 8 0 1 1 16 0"/><path d="M12 17l4-5"/><circle cx="12" cy="17" r="1.2"/>',rival:'<path d="M7 3v18M4 3v5a3 3 0 0 0 6 0V3M17 21V3c-2 1-3 4-3 7h3"/>',crane:'<circle cx="12" cy="12" r="8" stroke-dasharray="3.2 2.6"/><circle cx="12" cy="12" r="1.6"/>',filter:'<path d="M4 5h16l-6 7.2V18l-4 2v-7.8z"/>',truck:'<path d="M2 6h12v9H2zM14 9h4l3 3v3h-7"/><circle cx="6" cy="17" r="2"/><circle cx="17" cy="17" r="2"/>',pulse:'<path d="M4 5h16v11H9l-5 4z"/><path d="M8 11h2l1.5-2.5 2 5L15 11h1"/>',info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/>',dots:'<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>',
@@ -613,7 +623,10 @@ const on={stores:1,recs:1,ann:0,hl:0,near:0};
 const STF=(()=>{try{const v=JSON.parse(sessionStorage.getItem("ssStf")||"null");if(v)return {open:!!v.open,stages:new Set(v.stages)};}catch(_){}return {open:true,stages:new Set([0,1,2,3])};})();
 function saveStf(){try{sessionStorage.setItem("ssStf",JSON.stringify({open:STF.open,stages:[...STF.stages]}));}catch(_){}}
 const STG_N=[0,0,0,0];D.announced.forEach(a=>STG_N[stage(a.status)]++);
-function applyStf(){on.stores=STF.open?1:0;on.ann=STF.stages.size?1:0;if(map.getLayer("ann"))map.setFilter("ann",["in",["get","st"],["literal",[...STF.stages]]]);}
+const RATE_ON=()=>!!SF.r,STG_ON=()=>STF.stages.size<4,stgCol=k=>STG_ON()?STAGES[k][1]:NEUTRAL;
+const annImg=()=>STG_ON()?["concat","ann",["to-string",["get","st"]]]:"annN",hornImg=()=>RATE_ON()?["concat","h",["to-string",["get","k"]]]:"hN";
+function calmLayers(){if(map.getLayer("ann"))map.setLayoutProperty("ann","icon-image",annImg());if(map.getLayer("st-horns"))map.setLayoutProperty("st-horns","icon-image",hornImg());}
+function applyStf(){on.stores=STF.open?1:0;on.ann=STF.stages.size?1:0;calmLayers();if(map.getLayer("ann"))map.setFilter("ann",["in",["get","st"],["literal",[...STF.stages]]]);}
 const CMP=new Set(JSON.parse(sessionStorage.getItem("ssCmp")||"[]"));
 const saveCmp=()=>sessionStorage.setItem("ssCmp",JSON.stringify([...CMP]));
 function rasterize(img,w=64,h=64){const c=document.createElement("canvas");c.width=w;c.height=h;const x=c.getContext("2d");x.drawImage(img,0,0,w,h);return x.getImageData(0,0,w,h);}
@@ -626,6 +639,7 @@ async function addLayers(){
   await imgReady;const dark=theme==="dark";
   for(let k=0;k<6;k++){const n="h"+k;if(!map.hasImage(n)&&IMGS[n])map.addImage(n,rasterize(IMGS[n]),{pixelRatio:2});}
   for(let k=0;k<4;k++){const n="ann"+k;if(!map.hasImage(n)&&IMGS[n])map.addImage(n,rasterize(IMGS[n],48,48),{pixelRatio:2});}
+  if(!map.hasImage("annN")&&IMGS.annN)map.addImage("annN",rasterize(IMGS.annN,48,48),{pixelRatio:2});if(!map.hasImage("hN")&&IMGS.hN)map.addImage("hN",rasterize(IMGS.hN),{pixelRatio:2});
   CODES.forEach(c=>{if(!map.hasImage("b-"+c))map.addImage("b-"+c,badgeData(c),{pixelRatio:2});});
   if(map.getSource("stores"))return;
   map.addSource("stores",{type:"geojson",data:storesGJ(),cluster:true,clusterRadius:42,clusterMaxZoom:6});
@@ -649,9 +663,9 @@ async function addLayers(){
   map.addLayer({id:"hl",type:"circle",source:"hl",paint:{"circle-radius":["interpolate",["linear"],["zoom"],3,8,10,18],"circle-color":"rgba(230,159,0,.12)","circle-stroke-width":2.5,"circle-stroke-color":"#E69F00"}});
   map.addLayer({id:"near-pt",type:"symbol",source:"near",layout:{"icon-image":["concat","b-",["get","c"]],"icon-size":["interpolate",["linear"],["zoom"],8,.62,13,.85],"icon-allow-overlap":true}});
   map.addLayer({id:"st-sel",type:"circle",source:"sel",paint:{"circle-radius":21,"circle-color":"rgba(165,2,47,.25)","circle-stroke-width":3.5,"circle-stroke-color":"#A5022F"}});
-  map.addLayer({id:"st-horns",type:"symbol",source:"stores",filter:["!",["has","point_count"]],layout:{"icon-image":["concat","h",["to-string",["get","k"]]],"icon-size":["interpolate",["linear"],["zoom"],4,.6,9,.74,13,.88],"icon-allow-overlap":true,"icon-ignore-placement":true,"symbol-sort-key":["get","r"]}});
+  map.addLayer({id:"st-horns",type:"symbol",source:"stores",filter:["!",["has","point_count"]],layout:{"icon-image":hornImg(),"icon-size":["interpolate",["linear"],["zoom"],4,.6,9,.74,13,.88],"icon-allow-overlap":true,"icon-ignore-placement":true,"symbol-sort-key":["get","r"]}});
   map.addLayer({id:"focus",type:"line",source:"focus",paint:{"line-color":dark?"#D0BC9B":"#241F20","line-width":2.5,"line-dasharray":[2,1.5]}});
-  map.addLayer({id:"ann",type:"symbol",source:"ann",layout:{"icon-image":["concat","ann",["to-string",["get","st"]]],"icon-size":["interpolate",["linear"],["zoom"],3,.8,10,1.2],"icon-allow-overlap":true,"symbol-sort-key":["-",3,["get","st"]]}});
+  map.addLayer({id:"ann",type:"symbol",source:"ann",layout:{"icon-image":annImg(),"icon-size":["interpolate",["linear"],["zoom"],3,.8,10,1.2],"icon-allow-overlap":true,"symbol-sort-key":["-",3,["get","st"]]}});
   syncLayers();
 }
 function syncLayers(){applyStf();for(const [k,L] of Object.entries(LAYERS))for(const id of L.ids)if(map.getLayer(id))map.setLayoutProperty(id,"visibility",on[k]?"visible":"none");
@@ -699,11 +713,11 @@ function bindBrandDD(root,close){root.querySelectorAll("input[type=checkbox]").f
   const d=root.querySelector('[data-dd="done"]');if(d)d.onclick=close;}
 function stddHTML(){const row=(attr,chk,sw,lab,n)=>`<label class="cbx"><input type="checkbox" ${attr} ${chk?"checked":""}>${sw}${lab}<em>${fmt(n)}</em></label>`;
   return `<h4>Open</h4>${row('data-st="open"',STF.open,`<img class="sw" src="${BADGE}" alt="" style="width:16px;height:16px">`,"Open stores",S.length)}
-  <h4>Upcoming (pipeline)</h4>${STAGES.map(([l,c],k)=>row(`data-stg="${k}"`,STF.stages.has(k),ringSw(c,15),l,STG_N[k])).join("")}
-  <p class="note">Open stores: Texas Roadhouse store locator. Upcoming: company releases and local news (sources in Stores).</p><div style="display:flex;gap:6px;padding:0 6px 6px"><button class="btn primary" data-dd="done" style="flex:1">Done</button></div>`;}
+  <h4>Upcoming (pipeline)</h4>${STAGES.map(([l,c],k)=>row(`data-stg="${k}"`,STF.stages.has(k),ringSw(stgCol(k),15),l,STG_N[k])).join("")}
+  <div style="display:flex;gap:6px;padding:0 6px 6px"><button class="btn primary" data-dd="done" style="flex:1">Done</button></div>`;}
 function toggleStDD(o){const el=$("#stdd"),open=o??!el.classList.contains("on");if(open)el.innerHTML=stddHTML();el.classList.toggle("on",open);const b=$("#chips .stbtn");if(b)b.setAttribute("aria-expanded",open);
   if(open){el.querySelectorAll("input").forEach(i=>i.onchange=()=>{if(i.dataset.st)STF.open=i.checked;else{const k=+i.dataset.stg;i.checked?STF.stages.add(k):STF.stages.delete(k);}stfChanged();});el.querySelector('[data-dd="done"]').onclick=()=>toggleStDD(false);}}
-function stfChanged(){saveStf();syncLayers();if(chipSet.length)renderChips(chipSet);const b=$("#chips .stbtn");if(b)b.setAttribute("aria-expanded",$("#stdd").classList.contains("on"));computeScope();if(cur==="health")hRender();else refreshScoped();if(FK)renderF();}
+function stfChanged(){saveStf();syncLayers();if(chipSet.length)renderChips(chipSet);const b=$("#chips .stbtn");if(b)b.setAttribute("aria-expanded",$("#stdd").classList.contains("on"));computeScope();if(cur==="health")hRender();else refreshScoped();if(FK)renderF();if($("#stdd").classList.contains("on"))toggleStDD(true);}
 function toggleDD(o){const el=$("#cmpdd"),open=o??!el.classList.contains("on");if(open)el.innerHTML=ddHTML();el.classList.toggle("on",open);const b=$("#chips .cmpbtn");if(b)b.setAttribute("aria-expanded",open);
   if(open)bindBrandDD(el,()=>toggleDD(false));}
 function cmpChanged(){saveCmp();syncLayers();if($("#cmpdd").classList.contains("on"))$("#cmpdd").querySelectorAll("input[type=checkbox]").forEach(i=>i.checked=CMP.has(i.value));if(cur!=="compete"&&CMP.size){location.hash="#/compete";return;}if(cur==="compete")cmDraw();}
@@ -765,13 +779,15 @@ document.addEventListener("click",e=>{if(e.target.closest("[data-reset]")){e.pre
 /* dynamic legend: only what's on screen */
 function anyIn(pts){const v=viewBox();return pts.some(([lo,la])=>lo>=v[0]&&lo<=v[2]&&la>=v[1]&&la<=v[3]);}
 function renderLegend(){if(!loaded)return;const it=[],v=viewBox();
-  if(on.stores&&anyIn(S.map(s=>[s.lon,s.lat]))){it.push(`<b>Texas Roadhouse · Google rating</b>`);const z=map.getZoom();
-    const vis=new Set(S.filter(s=>s.lon>=v[0]&&s.lon<=v[2]&&s.lat>=v[1]&&s.lat<=v[3]).map(s=>rcls(s.r)));
-    RAMP.forEach(([l,c],k)=>{if(vis.has(k))it.push(`<div><img src="${svgURL(pinSVG(c))}" alt="">${l}</div>`);});
+  const vs=S.filter(s=>passSF(s)&&s.lon>=v[0]&&s.lon<=v[2]&&s.lat>=v[1]&&s.lat<=v[3]);
+  if(on.stores&&vs.length){const z=map.getZoom();
+    if(RATE_ON()){it.push(`<b>Texas Roadhouse · Google rating</b>`);const vis=new Set(vs.map(s=>rcls(s.r)));RAMP.forEach(([l,c],k)=>{if(vis.has(k))it.push(`<div><img src="${svgURL(pinSVG(c))}" alt="">${l}</div>`);});}
+    else it.push(`<div><img src="${svgURL(pinSVG(NEUTRAL))}" alt="">Texas Roadhouse</div>`);
     if(z<7.5)it.push(`<div><i style="border-radius:50%;background:#A5022F;border:2px solid #D0BC9B;width:16px;height:16px"></i>Store cluster (count)</div>`);}
   if(markers.length)it.push(`<div><i style="border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:var(--panel);border:2.5px solid var(--rec);width:14px;height:14px"></i>Prospect (national rank)</div>`);
   if(on.recs&&anyIn(REC.map(r=>[r.lon,r.lat])))it.push(`<div><i style="border-radius:50%;border:2px solid var(--rec);background:rgba(165,2,47,.35)"></i>Prospective location</div>`);
-  if(on.ann)STAGES.forEach(([l,c],k)=>{if(STF.stages.has(k)&&anyIn(ANN.filter(a=>stage(a.status)===k).map(a=>[a.lon,a.lat])))it.push(`<div>${ringSw(c,16)}Pipeline · ${l.toLowerCase()}</div>`);});
+  if(on.ann){const vk=STAGES.map((_,k)=>STF.stages.has(k)&&anyIn(ANN.filter(a=>stage(a.status)===k).map(a=>[a.lon,a.lat])));
+    if(STG_ON())STAGES.forEach(([l,c],k)=>{if(vk[k])it.push(`<div>${ringSw(c,16)}Upcoming · ${l.toLowerCase()}</div>`);});else if(vk.some(Boolean))it.push(`<div>${ringSw(NEUTRAL,16)}Upcoming store (pipeline)</div>`);}
   if(on.hl&&anyIn(hlGJ.features.map(f=>f.geometry.coordinates)))it.push(`<div><i style="border-radius:50%;border:3px solid #E69F00"></i>Over capacity</div>`);
   if(on.near&&ringGJ.features.length){it.push(`<div><i style="border-radius:50%;border:3px solid #A5022F;width:14px;height:14px"></i>Selected store</div><div><i style="border-radius:50%;border:1.6px dashed #D0BC9B;width:14px;height:14px"></i>5 / 10 / 25 km rings</div>`);
     const nb=[...new Set(nearGJ.features.map(f=>f.properties.c))];if(nb.length)it.push(`<b style="display:block;margin-top:6px">Rivals ≤25 km</b>`+CODES.filter(c=>nb.includes(c)).map(c=>`<div><img src="${badgeURL(c)}" alt="">${CB[c].short}</div>`).join(""));}
@@ -794,7 +810,7 @@ let fitMapH=0,fitT=0;
 function fitScreen(grow=true){if(isDesk()){if(fitMapH){document.documentElement.style.removeProperty("--mapH");fitMapH=0;}return;}
   if(scrollY>2)return;const vb=document.querySelector(".view.on.hasmap .vbody");if(!vb)return;
   const key=vb.querySelector(".shbody .dr.key")||vb.querySelector(".shbody > *:first-child");if(!key)return;
-  const glance=key.getBoundingClientRect().bottom-vb.getBoundingClientRect().top+10;
+  const one=document.documentElement.classList.contains("onescreen"),glance=one?vb.offsetHeight:key.getBoundingClientRect().bottom-vb.getBoundingClientRect().top+10;
   const vh=window.visualViewport?Math.min(visualViewport.height,innerHeight):innerHeight;
   const avail=vh-$(".top").offsetHeight-$(".tabbar").offsetHeight;
   const h=Math.round(Math.max(Math.min(avail-glance,avail-140),(document.body.dataset.sv==="1"?Math.max(180,avail*.3):Math.max(110,avail*.22))));
@@ -848,10 +864,10 @@ function fCountLine(){const m=FM[FK];if(m.prospect){const a=REC.filter(r=>inS(r.
 function posF(){if(!FK)return;if(isDesk()){const p=$(".view.on .vbody")||$(".view.on");const r=p.getBoundingClientRect();fsheet.style.left=r.left+"px";fsheet.style.width=r.width+"px";fsheet.style.bottom="0px";}
   else{const tb=$(".tabbar"),t=tb?tb.getBoundingClientRect().top:innerHeight;fsheet.style.left="0px";fsheet.style.width="100%";fsheet.style.bottom=Math.max(0,Math.round(innerHeight-t))+"px";}}
 function openF(k,hint){FK=k;FHINT=hint||null;$("#legend").classList.remove("on");toggleDD(false);toggleStDD(false);renderF();posF();const f=fsheet.querySelector("input,button:not(.fsx)");}
-function closeF(){if(!FK)return;FK=null;fsheet.classList.remove("on");fsheet.innerHTML="";}
+function closeF(){if(!FK)return;FK=null;fsheet.classList.remove("on");document.body.classList.remove("fopen");fsheet.innerHTML="";}
 function renderF(){if(!FK){closeF();return;}const k=FK,m=FM[k],f=SF[k];let body="";
   if(m.stages){body=`<div class="fopts">${STAGES.map(([l,c],i)=>{const n=D.announced.filter(a=>stage(a.status)===i&&(a.lat!=null?inS(a.lat,a.lon,a.state):(!SC.box&&(!SC.st||a.state===SC.st)))).length;
-      return `<label class="cbx"><input type="checkbox" data-fstg="${i}" ${STF.stages.has(i)?"checked":""}>${ringSw(c,16)}<span>${l}</span><em>${n}</em></label>`;}).join("")}</div><p class="note">Same switches as Stores ▾ on the map. Sources: company releases and local news.</p>`;}
+      return `<label class="cbx"><input type="checkbox" data-fstg="${i}" ${STF.stages.has(i)?"checked":""}>${ringSw(stgCol(i),16)}<span>${l}</span><em>${n}</em></label>`;}).join("")}</div><p class="note">Same switches as Stores ▾ on the map. Sources: company releases and local news.</p>`;}
   else{const src=m.prospect?REC.filter(r=>inS(r.lat,r.lon,r.st)):areaStores(),vals=src.map(m.get).filter(v=>v!=null),nod=src.length-vals.length;
     if(m.cat){const v=f?f.v:"";body=`<div class="fpre" role="group" aria-label="${esc(m.t)}"><button data-fcat="" aria-pressed="${!v}">All stores</button>${m.opts.map(([o,l])=>`<button data-fcat="${o}" aria-pressed="${v===o}">${l} <em>${fmt(vals.filter(x=>o==="over"?x===true:x===false).length)}</em></button>`).join("")}</div><p class="note">${esc(m.def)}</p>`;}
     else{const bins=fBins(m,vals),mx=Math.max(1,...bins.map(b=>b.c)),lo=f&&f.lo!=null?f.lo:m.min,hi=f&&f.hi!=null?f.hi:m.max;
@@ -863,7 +879,7 @@ function renderF(){if(!FK){closeF();return;}const k=FK,m=FM[k],f=SF[k];let body=
   const n=sfCount(),go=m.go&&!location.hash.startsWith(m.go[0])?`<button class="flink" data-go="${m.go[0]}">${m.go[1]} ${ic("chev")}</button>`:"";
   fsheet.innerHTML=`<div class="fsh-h"><span class="fsh-t">${ic("filter")}<b>${esc(m.t)}</b></span><span class="fsh-n" aria-live="polite">${fCountLine()}</span><button class="ibtn fsx" data-fdone aria-label="Close filter">${ic("x")}</button></div>${body}
    <div class="fsh-f">${m.stages?`<button class="btn" data-fallstg ${STF.stages.size===4?"disabled":""}>All stages</button>`:`<button class="btn" data-sfclear ${n?"":"disabled"}>Clear filters${n?` (${n})`:""}</button>`}${go}<button class="btn primary" data-fdone>Done</button></div>`;
-  fsheet.classList.add("on");bindF();fRangeUI();}
+  fsheet.classList.add("on");document.body.classList.add("fopen");bindF();fRangeUI();}
 function fRangeUI(){const m=FM[FK];if(!m||m.cat||m.stages)return;const L=fsheet.querySelector(".rlo"),H=fsheet.querySelector(".rhi");if(!L)return;const lo=+L.value,hi=+H.value,sp=m.max-m.min||1;
   const fl=fsheet.querySelector(".fill");fl.style.left=`calc(13px + (100% - 26px) * ${(lo-m.min)/sp})`;fl.style.width=`calc((100% - 26px) * ${(hi-lo)/sp})`;
   const u=m.u==="★"?"★":m.u==="min"?" min":"";fsheet.querySelector(".frange").textContent=(lo<=m.min&&hi>=m.max)?"Any":`${fv(m,lo)}${u} – ${fv(m,hi)}${u}`;
@@ -882,7 +898,7 @@ function bindF(){const m=FM[FK];
     L.oninput=on("lo");H.oninput=on("hi");const fin=()=>applySF(true);L.onchange=fin;H.onchange=fin;}}
 let sfRaf=0,sfFull=false;
 function applySF(full){saveSF();sfFull=sfFull||full;if(sfRaf)return;sfRaf=requestAnimationFrame(()=>{sfRaf=0;const fu=sfFull;sfFull=false;
-  if(map.getSource("stores"))map.getSource("stores").setData(storesGJ());if(map.getSource("recall"))map.getSource("recall").setData(recGJF());
+  calmLayers();if(map.getSource("stores"))map.getSource("stores").setData(storesGJ());if(map.getSource("recall"))map.getSource("recall").setData(recGJF());
   if(cur==="demand")setHL(FL.filter(([s])=>passSF(s)).map(x=>x[0]));computeScope();refreshScoped();decorateTiles();
   if(FK){if(fu)renderF();else{const c=fsheet.querySelector(".fsh-n");if(c)c.textContent=fCountLine();const n=sfCount(),b=fsheet.querySelector("[data-sfclear]");if(b){b.disabled=!n;b.textContent=`Clear filters${n?` (${n})`:""}`;}
     const ib=fsheet.querySelector("[data-finc]"),f=SF[FK];if(ib){ib.disabled=!f;ib.checked=f?!!f.inc:true;}fsheet.querySelectorAll("[data-fpre]").forEach(b=>{const [a,c]=FM[FK].pre[+b.dataset.fpre][1];b.setAttribute("aria-pressed",!!f&&(f.lo??null)===(a??null)&&(f.hi??null)===(c??null));});}}});}
@@ -941,16 +957,8 @@ function hmDraw(){const el=$("#hmK");if(!el)return;updateScopeUI();const st=SS.m
    ${avgR!=null?K("star","Avg rating",`${tw("hm-r",+avgR.toFixed(2),2)}<small>★</small>`,`${mbars(hist,"#21918c")}${sampleNote(rt.length,n)}<span>rated</span>`,`Average Google rating ${avgR.toFixed(2)} from ${rt.length} of ${n} stores rated`):K("star","Avg rating","Not sampled",`<span>0 of ${n} rated</span>`,"","ns")}
    ${avgW!=null?K("wait","Weekend wait",`${tw("hm-w",Math.round(avgW))}<small> min</small>`,`${gbar(avgW,30,60,"var(--cost)",WAVG)}${sampleNote(wt.length,n)}<span>with waits</span>`,`Average weekend wait ${Math.round(avgW)} min from ${wt.length} of ${n} stores`):K("wait","Weekend wait","Not sampled",`<span>0 of ${n} with waits</span>`,"","ns")}
    ${K("warn","Over capacity",tw("hm-f",fl),`${gbar(fl,0,Math.max(1,wt.length),"#D55E00")}${sampleNote(fl,wt.length)}<span>with waits</span>`,`${fl} over-capacity stores of ${wt.length} with wait data`)}</div>`:emptyCard();
-  const top=recs[0];
-  const growth=`<div class="kgrid">${K("target","Prospects",`${tw("hm-r2",recs.length)}<small> of ${REC.length}</small>`,`${gbar(recs.length,0,REC.length,"var(--rec)")}<span>${recs.length?"ranked counties":"none here"}</span>`,`${recs.length} of ${REC.length} prospective locations in ${scopeLabel()}`)}
-   ${K("crane","Pipeline",`${tw("hm-p",SA.length)}<small> sites</small>`,`${SA.length?stack(stg.map((k2,k)=>[k2/SA.length,STAGES[k][1]])):""}<span>${SA.length?`${stg[0]} opening soon`:"none here"}</span>`,`${SA.length} pipeline sites in ${scopeLabel()}`)}</div>
-   ${recs.length?`<div class="plist">${SR.slice(0,3).map(i=>prow(i)).join("")}</div>`:""}<button class="btn block" data-go="#/next" style="margin-top:8px">${all?`All ${REC.length} prospects`:`${recs.length} prospect${recs.length===1?"":"s"} here`} ${ic("chev")}</button>`;
-  el.innerHTML=
-   drawer("home","key","Key numbers",key,{key:1,open:1})+
-   drawer("home","growth","Prospects & pipeline",growth,{count:`${recs.length} · ${SA.length}`})+
-   drawer("home","ins","Insights",ichips(natInsights()),{count:"national"})+
-   drawer("home","co","Company",`<div class="kgrid">${K("money","AUV",`$${AUV.toFixed(2)}<small>M</small>`,`<span>FY2025 · 10-K</span>`,`Average unit volume $${AUV.toFixed(2)}M, FY2025 10-K`)}
-   ${K("grow","Comp sales",`+${K10.txrh_comp_sales_fy2025_pct}<small>%</small>`,`<span class="chip2 up">Q3 +${Q3.txrh_comp_sales_q3_pct}%</span>`,`Comparable restaurant sales FY2025 +${K10.txrh_comp_sales_fy2025_pct}%`)}</div><p class="note">SEC filings · company-wide, not map-scoped.</p>`,{count:"SEC"});
+  /* v6.6: Home = map + key tiles only (prospects, pipeline, insights and company live in their own tabs) */
+  el.innerHTML=drawer("home","key","Key numbers",key,{key:1,open:1});
   tweenIn(el);}
 SCOPED.home=hmDraw;
 function eHome(){Object.assign(on,{stores:1,recs:1,ann:0,hl:0,near:0});renderChips(["stores","recs","ann"]);syncLayers();maybeFit();hmDraw();}
@@ -1156,12 +1164,12 @@ function closeStore(){hideRival();if(PREV&&PREV!=="store")history.back();else lo
 /* ---------- Pipeline ---------- */
 function plDraw(){const el=$("#plB");if(!el)return;updateScopeUI();const asKey=!STF.open,A=SA.filter(i=>STF.stages.has(stage(D.announced[i].status))).map(i=>[D.announced[i],i]),stg=[0,0,0,0];A.forEach(([a])=>stg[stage(a.status)]++);const states=new Set(A.map(([a])=>a.state)).size,all=isAll();
   const nx=A.map(([a])=>[a,openDate(a)]).filter(x=>x[1]&&x[1]>=new Date(today.getFullYear(),today.getMonth(),today.getDate())).sort((a,b)=>a[1]-b[1])[0];
-  const srcs=[...new Set(D.announced.flatMap(a=>String(a.source).split(" ; ").map(x=>x.trim()).filter(x=>x.startsWith("http")&&!x.includes("<"))))];
-  el.innerHTML=(!A.length?(asKey?emptyCard("pipeline sites"):""):drawer("pipe",asKey?"key":"up",asKey?"Key numbers":"Upcoming",`<div class="kgrid">${K("crane",all?"Sites tracked":"Sites here",`${tw("pl-n",A.length)}${all?"":`<small> of ${D.announced.length}</small>`}`,stack(stg.map((n,k)=>[n/A.length,STAGES[k][1]])),`${A.length} pipeline sites in ${scopeLabel()}`)}
+
+  el.innerHTML=(!A.length?(asKey?emptyCard("pipeline sites"):""):drawer("pipe",asKey?"key":"up",asKey?"Key numbers":"Upcoming",`<div class="kgrid">${K("crane",all?"Sites tracked":"Sites here",`${tw("pl-n",A.length)}${all?"":`<small> of ${D.announced.length}</small>`}`,stack(stg.map((n,k)=>[n/A.length,stgCol(k)])),`${A.length} pipeline sites in ${scopeLabel()}`)}
    ${K("flag","Opening soon",tw("pl-o",stg[0]),`<span>${nx?"next: "+esc(nx[0].city)+" "+nx[1].toLocaleDateString("en-US",{month:"short",day:"numeric"}):"no dated opening"}</span>`)}
    ${K("store","Opened YTD",ER.openings_ytd,`<span>company-wide · Q3 release</span>`)}
    ${K("pin","States",tw("pl-s",states),`<span>"30+ under construction" company-wide</span>`,"Company says over 30 restaurants are under construction across all brands")}</div>`,asKey?{key:1,open:1}:{count:A.length})+drawer("pipe","stages","Sites by stage",`<div class="card">${hbars(STAGES.map(([l,c],k)=>[l,stg[k],null,c]),Math.max(1,...stg))}</div>
-  ${STAGES.map(([l,c],k)=>{const a=A.filter(([x])=>stage(x.status)===k);return a.length?`<h2 class="stgh">${ringSw(c,16)} ${l} <span class="cnt">${a.length}</span></h2><div class="rows">${a.map(([x,i])=>row({t:`${esc(x.city)}, ${x.state}`,s:esc(x.status),v:openDate(x)?openDate(x).toLocaleDateString("en-US",{month:"short",day:"numeric"}):"",attr:`data-an="${i}"`})).join("")}</div>`:"";}).join("")}`,{count:A.length}))+drawer("pipe","src","Sources",`${srcs.map(u=>`<div class="src"><a href="${esc(u)}" target="_blank" rel="noopener">${esc(u)}</a></div>`).join("")}<p class="note">News, permits and brand location pages. "${esc(ER.pipeline_quote)}" (Q3 2026 earnings release).</p>`,{count:srcs.length});tweenIn(el);}
+  ${STAGES.map(([l,c],k)=>{const a=A.filter(([x])=>stage(x.status)===k);return a.length?`<h2 class="stgh">${ringSw(stgCol(k),16)} ${l} <span class="cnt">${a.length}</span></h2><div class="rows">${a.map(([x,i])=>row({t:`${esc(x.city)}, ${x.state}`,s:esc(x.status),v:openDate(x)?openDate(x).toLocaleDateString("en-US",{month:"short",day:"numeric"}):"",attr:`data-an="${i}"`})).join("")}</div>`:"";}).join("")}`,{count:A.length}));tweenIn(el);}
 
 
 /* ---------- Brand Pulse ---------- */
@@ -1184,6 +1192,8 @@ SCOPED.pulse=puDraw;
 
 
 /* ---------- About ---------- */
+/* v6.6: pipeline sources live only in More → About → Sources */
+const PIPE_SRCS=[...new Set(D.announced.flatMap(a=>String(a.source).split(" ; ").map(x=>x.trim()).filter(x=>x.startsWith("http")&&!x.includes("<"))))];
 function vAbout(el){const s2=D.summary_v2;const ex=Object.entries(s2.excl_counts),exmax=Math.max(...ex.map(e=>e[1]));
   el.innerHTML=`<div class="card" style="display:flex;align-items:center;gap:14px"><svg viewBox="0 0 32 32" style="width:48px;height:48px;flex:none">${markSVG()}</svg><div><div class="word" style="font-size:22px">Site<i>seer</i></div><div class="sub">Location intelligence for restaurant brands</div></div></div>
   <h2>Workspace</h2><div class="rows"><div class="row" style="cursor:default"><img src="${BADGE}" alt="" style="width:32px;height:32px"><span class="rt"><b>Texas Roadhouse</b><span>${fmt(S.length)} stores · snapshot ${esc(D.generated)}</span></span><span></span></div></div>
@@ -1193,7 +1203,7 @@ function vAbout(el){const s2=D.summary_v2;const ex=Object.entries(s2.excl_counts
   <details class="sec" open><summary>Score weights</summary><div>${hbars(Object.keys(W).map(k=>[LAB[k],W[k]*100,(W[k]*100).toFixed(0)+"%",GCOL[GROUP[k]]]),25)}<p class="note">Score = 100 × Σ weight × factor (0–1 percentile rank; DC access = distance ramp ${D.params.DC_FULL_KM}→${D.params.DC_ZERO_KM} km).</p></div></details>
   <details class="sec"><summary>Supply chain in the score</summary><div><p class="note">Supply chain is ${Math.round(gmax("supply"))}% of each site score: distribution-center access (${Math.round(W.dc_access*100)}%, full credit within ${D.params.DC_FULL_KM} km of a DC, zero at ${D.params.DC_ZERO_KM} km) and store-cluster support (${Math.round(W.cluster*100)}%, existing stores within 100 km that share trucks, managers and marketing). The distributor isn't named, so ${D.dcs.length} public SYGMA and PFG Customized DC sites stand in as a proxy network. It's used for scoring only and isn't drawn on the map.</p>${D.supply_chain.quotes.map(q=>`<div class="quote">"${esc(q)}"</div>`).join("")}<p class="note"><a href="${D.supply_chain.source}" target="_blank" rel="noopener">FY2025 10-K</a></p></div></details>
   <details class="sec"><summary>Candidates &amp; filters</summary><div>${hbars(ex.map(([k,v])=>[k,v,fmt(v),"var(--muted)"]),exmax)}<p class="note">Counties with ≥${fmt(D.params.MIN_COUNTY_POP)} residents in a metro/micro area (lower 48), scored at the 2020 Census center of population; max ${D.params.MAX_PER_CBSA} sites per metro.</p></div></details>
-  <details class="sec"><summary>Sources (${Object.keys(D.sources).length})</summary><div>${Object.entries(D.sources).map(([k,v])=>`<div class="src"><b>${esc(k.replace(/_/g," "))}</b>${esc(v.description)}<br>${v.coverage?`Coverage: ${esc(v.coverage)} · `:""}Pulled ${esc(v.pulled)}<br>${String(v.url||"").startsWith("http")?`<a href="${esc(String(v.url).split(" ")[0])}" target="_blank" rel="noopener">${esc(String(v.url).slice(0,80))}</a>`:esc(v.url)}</div>`).join("")}</div></details>
+  <details class="sec" id="abSources"><summary>Sources (${Object.keys(D.sources).length+PIPE_SRCS.length})</summary><div>${Object.entries(D.sources).map(([k,v])=>`<div class="src"><b>${esc(k.replace(/_/g," "))}</b>${esc(v.description)}<br>${v.coverage?`Coverage: ${esc(v.coverage)} · `:""}Pulled ${esc(v.pulled)}<br>${String(v.url||"").startsWith("http")?`<a href="${esc(String(v.url).split(" ")[0])}" target="_blank" rel="noopener">${esc(String(v.url).slice(0,80))}</a>`:esc(v.url)}</div>`).join("")}<h3 class="srch">Pipeline sites (${PIPE_SRCS.length})</h3>${PIPE_SRCS.map(u=>`<div class="src"><a href="${esc(u)}" target="_blank" rel="noopener">${esc(u)}</a></div>`).join("")}<p class="note">News, permits and brand location pages. "${esc(ER.pipeline_quote)}" (Q3 2026 earnings release).</p></div></details>
   <details class="sec"><summary>Limitations</summary><div><ul class="note" style="padding-left:18px;margin:0">
    <li>Ratings and waits are a sample (${fmt(D.summary.n_rated)} of ${fmt(D.summary.n_stores)} stores rated; ${D.wait.n} with waits).</li><li>Store age is estimated from store number.</li><li>Rivals are counted, not rated; metro assignment is approximate.</li>
    <li>The DC network is a proxy; the distributor isn't named.</li><li>Cost = BEA regional price parity, not rent or construction cost.</li><li>Sites are county population centers, not parcels.</li><li>Search interest is relative (0–100) across TV markets.</li><li>X sentiment is from ${D.social.n_posts} sampled posts.</li>${(D.coord_fixes||[]).filter(f=>!f.unresolved).map(f=>`<li>${esc(f.store)}: ${esc(f.reason)}; located with the US Census geocoder (${esc(f.matched)}).</li>`).join("")}</ul></div></details>
@@ -1214,7 +1224,7 @@ function openMore(o){$("#more").classList.toggle("on",o);$("#scrim").classList.t
 $("#moreBtn").onclick=()=>openMore(!$("#more").classList.contains("on"));$("#scrim").onclick=()=>openMore(false);
 let cur=null,PREV=null;const rendered={};
 function route(){if(/^#\/pipeline/.test(location.hash)){location.replace("#/health/pipeline");return;}const h=(location.hash||"#/home").replace(/^#\/?/,"").split("/");let v=h[0]||"home";if(!VIEWS[v])v="home";const param=h[1]??null;
-  const focus=v==="store"||(v==="next"&&param!=null);document.body.dataset.sv=(!focus&&["home","next","health","demand","compete"].includes(v))?"1":"0";
+  const focus=v==="store"||(v==="next"&&param!=null);document.documentElement.classList.toggle("onescreen",v==="home");document.body.dataset.sv=(!focus&&["home","next","health","demand","compete"].includes(v))?"1":"0";
   if(focus&&!FOCUS&&loaded)SAVED={center:map.getCenter(),zoom:map.getZoom(),bearing:map.getBearing(),pitch:map.getPitch(),padding:{...map.getPadding()},mapH:fitMapH,view:cur};
   let back=false;if(!focus&&FOCUS&&SAVED){FOCUS=false;back=SAVED.view===v;if(back&&SAVED.mapH&&!isDesk()){fitMapH=SAVED.mapH;document.documentElement.style.setProperty("--mapH",SAVED.mapH+"px");map.resize();}const c={...SAVED};delete c.mapH;delete c.view;map.jumpTo(c);SAVED=null;}
   FOCUS=focus;
