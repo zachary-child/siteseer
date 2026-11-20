@@ -16,7 +16,7 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath fill='%235b4fe9' d='M16 1.5C9.1 1.5 3.6 6.9 3.6 13.6 3.6 22.4 16 30.5 16 30.5S28.4 22.4 28.4 13.6C28.4 6.9 22.9 1.5 16 1.5Z'/%3E%3Cpath fill='%23fff' d='M8.2 13.6C10.2 10.4 13 8.8 16 8.8S21.8 10.4 23.8 13.6C21.8 16.8 19 18.4 16 18.4S10.2 16.8 8.2 13.6Z'/%3E%3Ccircle cx='16' cy='13.6' r='3.3' fill='%234338ca'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
 <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
-<script src="data.js?v=6.2"></script>
+<script src="data.js?v=6.3"></script>
 <style>
 :root{--bg:#f7f3ec;--panel:#fff;--panel2:#f3ede4;--line:#e6ddd0;--text:#241F20;--muted:#6b5f55;--brand:#A5022F;--brand-t:#A5022F;--brand2:#991A36;--brand-soft:#f8e6ea;--brand-ink:#7d0224;--tan:#D0BC9B;--wood:#A66648;
  --demand:#A66648;--supply:#0072B2;--cost:#9a7b00;--up:#047857;--up-bg:#e7f6ef;--down:#b4410e;--down-bg:#fdeee6;--flat-bg:#efe9e0;--warn:#9a3412;--warn-bg:#fff4ec;
@@ -335,6 +335,13 @@ details.sec>div{padding:0 14px 12px}
 .spill.on{padding-right:4px}
 .spill .sx{position:relative;z-index:2;margin-left:2px}
 .spill:focus-within{outline:3px solid var(--tan);outline-offset:2px}
+/* v6.3 scope control floats on the map, under the layer chips */
+.mapscope{position:absolute;top:54px;left:calc(8px + var(--sal,0px));z-index:4;display:none;max-width:calc(100% - 16px - var(--sal,0px));min-width:0;pointer-events:none;margin:0}
+body[data-sv="1"] .mapscope{display:flex}
+.mapscope .spill{pointer-events:auto;min-height:44px;background:color-mix(in srgb,var(--panel) 92%,transparent);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);box-shadow:var(--shadow);font-size:13.5px}
+.mapscope .spill.on{background:color-mix(in srgb,var(--brand) 30%,var(--panel));border-color:var(--brand)}
+.mapscope .spill .sx{width:32px;height:32px}
+.dr.key{margin-top:10px}
 </style>
 </head>
 <body>
@@ -382,6 +389,7 @@ details.sec>div{padding:0 14px 12px}
   <div id="map" role="region" aria-label="Map"></div>
   <div class="mskel" id="mskel" aria-hidden="true"></div>
   <div class="chips" id="chips" role="toolbar" aria-label="Map layers"></div>
+  <div class="scopebar mapscope" id="mapScope" role="status" aria-live="polite"></div>
   <button class="chip legbtn" id="legBtn" aria-expanded="false">Legend</button>
   <div class="legend" id="legend"></div>
   <div class="cmpdd" id="cmpdd" role="dialog" aria-label="Compare brands"></div>
@@ -608,7 +616,7 @@ function computeScope(){if(loaded){const v=viewBox();const ref=SC.st?STB[SC.st].
   SR=REC.map((_,i)=>i).filter(i=>inS(REC[i].lat,REC[i].lon,REC[i].st));
   SA=D.announced.map((_,i)=>i).filter(i=>{const a=D.announced[i];return a.lat!=null?inS(a.lat,a.lon,a.state):(!SC.box&&(!SC.st||a.state===SC.st));});}
 function scopeLabel(){const st=SC.st?STB[SC.st].n:null;return st?(SC.box?`${st} · map area`:st):(SC.box?"Map area":"All US");}
-const scopeBar=(extra="")=>`<div class="ctlrow"><div class="scopebar" role="status" aria-live="polite"></div>${extra}</div>`;
+const scopeBar=(extra="",inPanel=false)=>inPanel?`<div class="ctlrow"><div class="scopebar" role="status" aria-live="polite"></div>${extra}</div>`:(extra?`<div class="ctlrow">${extra}</div>`:"");
 function updateScopeUI(){const lab=scopeLabel(),on=!isAll();
   $$(".scopebar").forEach(el=>{el.innerHTML=`<span class="spill${on?" on":""}">${ic("pin")}<b>${esc(lab)}</b><span class="car" aria-hidden="true">▾</span><select class="stpick" aria-label="Area: ${esc(lab)}. Choose a state"><option value="">All US</option>${STLIST.map(s=>`<option value="${s.st}" ${s.st===SC.st?"selected":""}>${esc(s.n)}</option>`).join("")}</select>${on?`<button class="sx" data-reset aria-label="Reset to All US">${ic("x")}</button>`:""}</span>`;
    el.querySelector(".stpick").onchange=e=>{const v=e.target.value;v?selectState(v):clearScope();};});}
@@ -671,7 +679,7 @@ function fitScreen(grow=true){if(isDesk()){if(fitMapH){document.documentElement.
   const glance=key.getBoundingClientRect().bottom-vb.getBoundingClientRect().top+10;
   const vh=window.visualViewport?Math.min(visualViewport.height,innerHeight):innerHeight;
   const avail=vh-$(".top").offsetHeight-$(".tabbar").offsetHeight;
-  const h=Math.round(Math.max(Math.min(avail-glance,avail-140),Math.max(110,avail*.22)));
+  const h=Math.round(Math.max(Math.min(avail-glance,avail-140),(document.body.dataset.sv==="1"?Math.max(180,avail*.3):Math.max(110,avail*.22))));
   if(Math.abs(h-fitMapH)<2||(!grow&&fitMapH&&h>fitMapH))return;fitMapH=h;document.documentElement.style.setProperty("--mapH",h+"px");requestAnimationFrame(()=>map.resize());setTimeout(()=>fitScreen(false),350);}
 const fitSoon=(grow=false)=>{clearTimeout(fitT);fitT=setTimeout(()=>fitScreen(grow),60);};const fitGrow=()=>fitSoon(true);
 if(window.MutationObserver){const MO=new MutationObserver(()=>{if(!isDesk())fitSoon();});document.querySelectorAll(".view.hasmap .shbody").forEach(e=>MO.observe(e,{childList:true,subtree:true}));}
@@ -691,7 +699,8 @@ addEventListener("resize",()=>{if(isDesk()&&scrollY)window.scrollTo(0,0);syncShe
 /* drawers: accordion, at most the key drawer + one more open */
 const DR={};
 function drawer(view,id,title,html,o={}){const st=DR[view+":"+id],open=st!=null?st:!!o.open;
-  return `<details class="dr${o.key?" key":""}" data-dv="${view}" data-dr="${id}" ${open?"open":""}><summary><span>${title}</span>${o.count!=null&&o.count!==""?`<em>${o.count}</em>`:""}${ic("chev")}</summary><div class="drb">${html}</div></details>`;}
+  if(o.key)return `<div class="dr key" data-dv="${view}" data-dr="${id}"><div class="drb">${html}</div></div>`;
+  return `<details class="dr" data-dv="${view}" data-dr="${id}" ${open?"open":""}><summary><span>${title}</span>${o.count!=null&&o.count!==""?`<em>${o.count}</em>`:""}${ic("chev")}</summary><div class="drb">${html}</div></details>`;}
 document.addEventListener("toggle",e=>{const d=e.target;if(!d.classList||!d.classList.contains("dr"))return;DR[d.dataset.dv+":"+d.dataset.dr]=d.open;
   if(d.open&&!d.classList.contains("key")){const sc=d.closest(".shbody,.vbody");sc&&sc.querySelectorAll("details.dr[open]").forEach(x=>{if(x!==d&&!x.classList.contains("key")){x.open=false;DR[x.dataset.dv+":"+x.dataset.dr]=false;}});
     if(!isDesk()&&d.closest(".view.hasmap")){if(SHEET==="peek")snap("full");setTimeout(()=>d.scrollIntoView({block:"nearest",behavior:RM?"auto":"smooth"}),RM?0:470);}}},true);
@@ -749,7 +758,7 @@ function hmDraw(){const el=$("#hmK");if(!el)return;updateScopeUI();const st=SS.m
   const growth=`<div class="kgrid">${K("target","Prospects",`${tw("hm-r2",recs.length)}<small> of ${REC.length}</small>`,`${gbar(recs.length,0,REC.length,"var(--rec)")}<span>${recs.length?"ranked counties":"none here"}</span>`,`${recs.length} of ${REC.length} prospective locations in ${scopeLabel()}`)}
    ${K("crane","Pipeline",`${tw("hm-p",SA.length)}<small> sites</small>`,`${SA.length?stack(stg.map((k2,k)=>[k2/SA.length,STAGES[k][1]])):""}<span>${SA.length?`${stg[0]} opening soon`:"none here"}</span>`,`${SA.length} pipeline sites in ${scopeLabel()}`)}</div>
    ${recs.length?`<div class="plist">${SR.slice(0,3).map(i=>prow(i)).join("")}</div>`:""}<button class="btn block" data-go="#/next" style="margin-top:8px">${all?`All ${REC.length} prospects`:`${recs.length} prospect${recs.length===1?"":"s"} here`} ${ic("chev")}</button>`;
-  el.innerHTML=(top?ins1("target",`#${top.rank} prospect${all?"":" here"}: ${esc(top.title)} · ${Math.round(top.score)}`,`#/next/${SR[0]}`):"")+
+  el.innerHTML=
    drawer("home","key","Key numbers",key,{key:1,open:1})+
    drawer("home","growth","Prospects & pipeline",growth,{count:`${recs.length} · ${SA.length}`})+
    drawer("home","ins","Insights",ichips(natInsights()),{count:"national"})+
@@ -966,7 +975,7 @@ function plDraw(){const el=$("#plB");if(!el)return;updateScopeUI();const A=SA.ma
 let puSeg="top";
 function vPulse(el){const so=D.social,sh=so.sentiment_share,days=so.weekly_counts.filter(d=>(new Date(d.end)-new Date(d.start))>20*3600e3);
   const fmtD=s=>new Date(s).toLocaleDateString("en-US",{month:"short",day:"numeric",timeZone:"America/Denver"});
-  el.innerHTML=`${scopeBar()}
+  el.innerHTML=`${scopeBar("",true)}
   ${drawer("pulse","x",`On X · ${fmtD(so.window_utc[0])}–${fmtD(so.window_utc[1])}`,`<div class="kgrid">${K("chat","Posts · 7 days",fmt(so.weekly_total),spark(days.map(d=>d.tweet_count)),`${so.weekly_total} posts on X in the last 7 days`)}
    ${K("people","@"+so.brand_account.username,fmt(so.brand_account.followers),`<span>followers · ${fmt(so.brand_account.posts)} posts</span>`)}
    ${K("star","Positive",`${Math.round(sh.positive*100)}<small>%</small>`,stack([[sh.positive,"#009E73"],[sh.neutral,"var(--line)"],[sh.negative,"#D55E00"]]),`Sentiment of ${so.n_posts} sampled posts: ${Math.round(sh.positive*100)}% positive, ${Math.round(sh.neutral*100)}% neutral, ${Math.round(sh.negative*100)}% negative`)}
@@ -1012,7 +1021,7 @@ function openMore(o){$("#more").classList.toggle("on",o);$("#scrim").classList.t
 $("#moreBtn").onclick=()=>openMore(!$("#more").classList.contains("on"));$("#scrim").onclick=()=>openMore(false);
 let cur=null,PREV=null;const rendered={};
 function route(){if(/^#\/pipeline/.test(location.hash)){location.replace("#/health/pipeline");return;}const h=(location.hash||"#/home").replace(/^#\/?/,"").split("/");let v=h[0]||"home";if(!VIEWS[v])v="home";const param=h[1]??null;
-  const focus=v==="store"||(v==="next"&&param!=null);
+  const focus=v==="store"||(v==="next"&&param!=null);document.body.dataset.sv=(!focus&&["home","next","health","demand","compete"].includes(v))?"1":"0";
   if(focus&&!FOCUS&&loaded)SAVED={center:map.getCenter(),zoom:map.getZoom(),bearing:map.getBearing(),pitch:map.getPitch(),padding:{...map.getPadding()},mapH:fitMapH,view:cur};
   let back=false;if(!focus&&FOCUS&&SAVED){FOCUS=false;back=SAVED.view===v;if(back&&SAVED.mapH&&!isDesk()){fitMapH=SAVED.mapH;document.documentElement.style.setProperty("--mapH",SAVED.mapH+"px");map.resize();}const c={...SAVED};delete c.mapH;delete c.view;map.jumpTo(c);SAVED=null;}
   FOCUS=focus;
