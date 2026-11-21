@@ -16,7 +16,7 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath fill='%235b4fe9' d='M16 1.5C9.1 1.5 3.6 6.9 3.6 13.6 3.6 22.4 16 30.5 16 30.5S28.4 22.4 28.4 13.6C28.4 6.9 22.9 1.5 16 1.5Z'/%3E%3Cpath fill='%23fff' d='M8.2 13.6C10.2 10.4 13 8.8 16 8.8S21.8 10.4 23.8 13.6C21.8 16.8 19 18.4 16 18.4S10.2 16.8 8.2 13.6Z'/%3E%3Ccircle cx='16' cy='13.6' r='3.3' fill='%234338ca'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
 <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
-<script src="data.js?v=6.8"></script>
+<script src="data.js?v=6.9"></script>
 <style>
 :root{--bg:#f7f3ec;--panel:#fff;--panel2:#f3ede4;--line:#e6ddd0;--text:#241F20;--muted:#6b5f55;--brand:#A5022F;--brand-t:#A5022F;--brand2:#991A36;--brand-soft:#f8e6ea;--brand-ink:#7d0224;--tan:#D0BC9B;--wood:#A66648;
  --demand:#A66648;--supply:#0072B2;--cost:#9a7b00;--up:#047857;--up-bg:#e7f6ef;--down:#b4410e;--down-bg:#fdeee6;--flat-bg:#efe9e0;--warn:#9a3412;--warn-bg:#fff4ec;
@@ -647,7 +647,7 @@ const ANN=D.announced.filter(a=>a.lat!=null);
 const annGJ=FC(ANN.map((a,i)=>ptF(a.lon,a.lat,{i,st:stage(a.status)})));
 const recGJF=()=>FC(REC.map((r,i)=>[r,i]).filter(([r])=>passRF(r)).map(([r,i])=>ptF(r.lon,r.lat,{i,go:r.fips,top:1})));const recGJ=recGJF();
 let hlGJ=FC([]),focusGJ=FC([]),nearGJ=FC([]),ringGJ=FC([]),selGJ=FC([]);
-const LAYERS={stores:{label:"Stores",sw:`<img class="sw" src="${BADGE}" alt="">`,ids:["st-cluster","st-count","st-horns"]},
+const LAYERS={stores:{label:"Stores",sw:`<img class="sw" src="${BADGE}" alt="">`,ids:["st-dot","st-horns"]},
  recs:{label:"Prospects",sw:`<i class="sw" style="border-radius:50%;border:2px solid var(--rec);background:rgba(165,2,47,.35)"></i>`,ids:["rec-all"]},
  ann:{label:"Pipeline",sw:ringSw("#D0BC9B",14),ids:["ann"]},
  hl:{label:"Over capacity",short:"Over cap.",sw:`<i class="sw" style="border-radius:50%;border:3px solid #E69F00"></i>`,ids:["hl"]},
@@ -659,7 +659,9 @@ function saveStf(){try{sessionStorage.setItem("ssStf",JSON.stringify({open:STF.o
 const STG_N=[0,0,0,0];D.announced.forEach(a=>STG_N[stage(a.status)]++);
 const RATE_ON=()=>!!SF.r,STG_ON=()=>STF.stages.size<4,stgCol=k=>STG_ON()?STAGES[k][1]:NEUTRAL;
 const annImg=()=>STG_ON()?["concat","ann",["to-string",["get","st"]]]:"annN",hornImg=()=>RATE_ON()?["concat","h",["to-string",["get","k"]]]:"hN";
-function calmLayers(){if(map.getLayer("ann"))map.setLayoutProperty("ann","icon-image",annImg());if(map.getLayer("st-horns"))map.setLayoutProperty("st-horns","icon-image",hornImg());}
+/* v6.9: no clustering. Low zoom = small dots (rating colours only while a rating filter is on); pins cross-fade in from z6 */
+const DOT_FADE=[6,6.8],dotCol=()=>RATE_ON()?["match",["get","k"],...RAMP.flatMap(([,c],k)=>[k,c]),NEUTRAL]:NEUTRAL;
+function calmLayers(){if(map.getLayer("ann"))map.setLayoutProperty("ann","icon-image",annImg());if(map.getLayer("st-horns"))map.setLayoutProperty("st-horns","icon-image",hornImg());if(map.getLayer("st-dot"))map.setPaintProperty("st-dot","circle-color",dotCol());}
 function applyStf(){on.stores=STF.open?1:0;on.ann=STF.stages.size?1:0;calmLayers();if(map.getLayer("ann"))map.setFilter("ann",["in",["get","st"],["literal",[...STF.stages]]]);}
 const CMP=new Set(JSON.parse(sessionStorage.getItem("ssCmp")||"[]"));
 const saveCmp=()=>sessionStorage.setItem("ssCmp",JSON.stringify([...CMP]));
@@ -676,7 +678,7 @@ async function addLayers(){
   if(!map.hasImage("annN")&&IMGS.annN)map.addImage("annN",rasterize(IMGS.annN,48,48),{pixelRatio:2});if(!map.hasImage("hN")&&IMGS.hN)map.addImage("hN",rasterize(IMGS.hN),{pixelRatio:2});
   CODES.forEach(c=>{if(!map.hasImage("b-"+c))map.addImage("b-"+c,badgeData(c),{pixelRatio:2});});
   if(map.getSource("stores"))return;
-  map.addSource("stores",{type:"geojson",data:storesGJ(),cluster:true,clusterRadius:42,clusterMaxZoom:6});
+  map.addSource("stores",{type:"geojson",data:storesGJ()});
   map.addSource("ann",{type:"geojson",data:annGJ});map.addSource("recall",{type:"geojson",data:recGJ});map.addSource("hl",{type:"geojson",data:hlGJ});
   map.addSource("focus",{type:"geojson",data:focusGJ});map.addSource("near",{type:"geojson",data:nearGJ});map.addSource("rings",{type:"geojson",data:ringGJ});map.addSource("sel",{type:"geojson",data:selGJ});
   map.addSource("states",{type:"geojson",data:D.states_geo});
@@ -687,19 +689,19 @@ async function addLayers(){
   map.addLayer({id:"states-sel",type:"line",source:"states",filter:["==",["get","st"],"__"],paint:{"line-color":"#A5022F","line-width":2.6}});
   setStateHL();addCty();
   map.addLayer({id:"rings",type:"line",source:"rings",paint:{"line-color":"#D0BC9B","line-width":1.6,"line-dasharray":[3,2],"line-opacity":.85}});
-  map.addLayer({id:"st-cluster",type:"circle",source:"stores",filter:["has","point_count"],paint:{"circle-color":"#A5022F","circle-opacity":.92,"circle-radius":["step",["get","point_count"],13,10,17,30,22,80,27],"circle-stroke-width":2,"circle-stroke-color":dark?"#D0BC9B":"#fff"}});
-  if(!usingRaster)map.addLayer({id:"st-count",type:"symbol",source:"stores",filter:["has","point_count"],layout:{"text-field":["get","point_count_abbreviated"],"text-size":12,"text-font":["Noto Sans Bold"],"text-allow-overlap":true},paint:{"text-color":"#fff"}});
-  CODES.forEach(c=>{map.addSource("c-"+c,{type:"geojson",data:compGJ(c),cluster:true,clusterRadius:34,clusterMaxZoom:7});
-    map.addLayer({id:`c-${c}-cl`,type:"circle",source:"c-"+c,filter:["has","point_count"],paint:{"circle-color":CB[c].col,"circle-opacity":.9,"circle-radius":["step",["get","point_count"],11,10,14,40,18,120,22],"circle-stroke-width":2,"circle-stroke-color":"#111"}});
-    if(!usingRaster)map.addLayer({id:`c-${c}-n`,type:"symbol",source:"c-"+c,filter:["has","point_count"],layout:{"text-field":["get","point_count_abbreviated"],"text-size":11,"text-font":["Noto Sans Bold"],"text-allow-overlap":true},paint:{"text-color":LIGHTC.has(CB[c].col)?"#111":"#fff"}});
-    map.addLayer({id:`c-${c}-pt`,type:"symbol",source:"c-"+c,filter:["!",["has","point_count"]],layout:{"icon-image":"b-"+c,"icon-size":["interpolate",["linear"],["zoom"],4,.55,10,.8],"icon-allow-overlap":true}});});
-  map.addLayer({id:"rec-all",type:"circle",source:"recall",paint:{"circle-radius":["case",["==",["get","top"],1],7,4.5],"circle-color":"#A5022F","circle-opacity":["case",["==",["get","top"],1],.38,.22],"circle-stroke-width":2.2,"circle-stroke-color":dark?"#e0234f":"#A5022F"}});
-  map.addLayer({id:"hl",type:"circle",source:"hl",paint:{"circle-radius":["interpolate",["linear"],["zoom"],3,8,10,18],"circle-color":"rgba(230,159,0,.12)","circle-stroke-width":2.5,"circle-stroke-color":"#E69F00"}});
+  map.addLayer({id:"st-dot",type:"circle",source:"stores",paint:{"circle-color":dotCol(),"circle-radius":["interpolate",["linear"],["zoom"],2,1.6,3,2.2,4,2.7,5,3.4,6,4.3,7,5.2],
+    "circle-stroke-width":["interpolate",["linear"],["zoom"],3,.6,6,1.1],"circle-stroke-color":dark?"rgba(18,14,12,.9)":"rgba(255,255,255,.95)",
+    "circle-opacity":["interpolate",["linear"],["zoom"],DOT_FADE[0],1,DOT_FADE[1],0],"circle-stroke-opacity":["interpolate",["linear"],["zoom"],DOT_FADE[0],1,DOT_FADE[1],0]}});
+  CODES.forEach(c=>{map.addSource("c-"+c,{type:"geojson",data:compGJ(c)});
+    map.addLayer({id:`c-${c}-cl`,type:"circle",source:"c-"+c,paint:{"circle-color":CB[c].col,"circle-radius":["interpolate",["linear"],["zoom"],2,1.5,3,2,5,3,6.5,4.2],"circle-stroke-width":.6,"circle-stroke-color":"#111","circle-opacity":["interpolate",["linear"],["zoom"],6.5,.95,7.2,0],"circle-stroke-opacity":["interpolate",["linear"],["zoom"],6.5,.9,7.2,0]}});
+    map.addLayer({id:`c-${c}-pt`,type:"symbol",source:"c-"+c,minzoom:6.5,layout:{"icon-image":"b-"+c,"icon-size":["interpolate",["linear"],["zoom"],6.5,.6,10,.8],"icon-allow-overlap":true},paint:{"icon-opacity":["interpolate",["linear"],["zoom"],6.5,0,7.2,1]}});});
+  map.addLayer({id:"rec-all",type:"circle",source:"recall",paint:{"circle-radius":["interpolate",["linear"],["zoom"],2,["case",["==",["get","top"],1],2.8,1.8],4,["case",["==",["get","top"],1],3.8,2.5],7,["case",["==",["get","top"],1],7,4.5]],"circle-color":"#A5022F","circle-opacity":["case",["==",["get","top"],1],.38,.22],"circle-stroke-width":["interpolate",["linear"],["zoom"],2,.9,4,1.2,7,2.2],"circle-stroke-color":dark?"#e0234f":"#A5022F"}});
+  map.addLayer({id:"hl",type:"circle",source:"hl",minzoom:5,paint:{"circle-radius":["interpolate",["linear"],["zoom"],3,8,10,18],"circle-color":"rgba(230,159,0,.12)","circle-stroke-width":2.5,"circle-stroke-color":"#E69F00"}});
   map.addLayer({id:"near-pt",type:"symbol",source:"near",layout:{"icon-image":["concat","b-",["get","c"]],"icon-size":["interpolate",["linear"],["zoom"],8,.62,13,.85],"icon-allow-overlap":true}});
   map.addLayer({id:"st-sel",type:"circle",source:"sel",paint:{"circle-radius":21,"circle-color":"rgba(165,2,47,.25)","circle-stroke-width":3.5,"circle-stroke-color":"#A5022F"}});
-  map.addLayer({id:"st-horns",type:"symbol",source:"stores",filter:["!",["has","point_count"]],layout:{"icon-image":hornImg(),"icon-size":["interpolate",["linear"],["zoom"],4,.6,9,.74,13,.88],"icon-allow-overlap":true,"icon-ignore-placement":true,"symbol-sort-key":["get","r"]}});
+  map.addLayer({id:"st-horns",type:"symbol",source:"stores",minzoom:DOT_FADE[0],paint:{"icon-opacity":["interpolate",["linear"],["zoom"],DOT_FADE[0],0,DOT_FADE[1],1]},layout:{"icon-image":hornImg(),"icon-size":["interpolate",["linear"],["zoom"],6,.64,9,.74,13,.88],"icon-allow-overlap":true,"icon-ignore-placement":true,"symbol-sort-key":["get","r"]}});
   map.addLayer({id:"focus",type:"line",source:"focus",paint:{"line-color":dark?"#D0BC9B":"#241F20","line-width":2.5,"line-dasharray":[2,1.5]}});
-  map.addLayer({id:"ann",type:"symbol",source:"ann",layout:{"icon-image":annImg(),"icon-size":["interpolate",["linear"],["zoom"],3,.8,10,1.2],"icon-allow-overlap":true,"symbol-sort-key":["-",3,["get","st"]]}});
+  map.addLayer({id:"ann",type:"symbol",source:"ann",layout:{"icon-image":annImg(),"icon-size":["interpolate",["linear"],["zoom"],2,.3,3,.36,5,.55,7,.85,10,1.2],"icon-allow-overlap":true,"symbol-sort-key":["-",3,["get","st"]]}});
   syncLayers();
 }
 function syncLayers(){applyStf();ctySync();for(const [k,L] of Object.entries(LAYERS))for(const id of L.ids)if(map.getLayer(id))map.setLayoutProperty(id,"visibility",on[k]?"visible":"none");
@@ -720,13 +722,12 @@ function setStoreCtx(i){if(i==null){selGJ=FC([]);nearGJ=FC([]);ringGJ=FC([]);}el
   setSrc("sel",selGJ);setSrc("near",nearGJ);setSrc("rings",ringGJ);}
 /* interactions */
 const popup=new maplibregl.Popup({closeButton:true,maxWidth:"290px",offset:14});
-map.on("click","st-cluster",e=>{const f=e.features[0];map.getSource("stores").getClusterExpansionZoom(f.properties.cluster_id).then(z=>map.easeTo({center:f.geometry.coordinates,zoom:Math.max(z,7)+.2,duration:RM?0:600}));});
 map.on("click","st-horns",e=>{hideRival();const to="#/store/"+e.features[0].properties.i;cur==="store"?location.replace(to):location.hash=to;});
 map.on("click","ann",e=>{const a=ANN[e.features[0].properties.i];popup.setLngLat([a.lon,a.lat]).setHTML(`<b>${esc(a.city)}, ${a.state}</b><br>${STAGES[stage(a.status)][0]}<br><span style="color:var(--muted)">${esc(a.status)}</span>`).addTo(map);});
 map.on("click","rec-all",e=>{location.hash="#/next/"+e.features[0].properties.go;});
-const clickable=["st-cluster","st-horns","ann","rec-all","near-pt",...CODES.flatMap(c=>[`c-${c}-pt`,`c-${c}-cl`])];
+const clickable=["st-horns","ann","rec-all","near-pt",...CODES.map(c=>`c-${c}-pt`)];
 CODES.forEach(c=>{map.on("click",`c-${c}-pt`,e=>showRival(e.features[0].properties.i));
-  map.on("click",`c-${c}-cl`,e=>{const f=e.features[0];map.getSource("c-"+c).getClusterExpansionZoom(f.properties.cluster_id).then(z=>map.easeTo({center:f.geometry.coordinates,zoom:z+.3,duration:RM?0:600}));});});
+  /* v6.9: rival dots (low zoom) are not tap targets; badges take over from z6.5 */});
 map.on("click","near-pt",e=>showRival(e.features[0].properties.i));
 for(const id of clickable){map.on("mouseenter",id,()=>map.getCanvas().style.cursor="pointer");map.on("mouseleave",id,()=>map.getCanvas().style.cursor="");}
 /* rival card */
@@ -817,19 +818,19 @@ function anyIn(pts){const v=viewBox();return pts.some(([lo,la])=>lo>=v[0]&&lo<=v
 function renderLegend(){if(!loaded)return;const it=[],v=viewBox();
   const vs=S.filter(s=>passSF(s)&&s.lon>=v[0]&&s.lon<=v[2]&&s.lat>=v[1]&&s.lat<=v[3]);
   if(on.stores&&vs.length){const z=map.getZoom();
-    if(RATE_ON()){it.push(`<b>Texas Roadhouse · Google rating</b>`);const vis=new Set(vs.map(s=>rcls(s.r)));RAMP.forEach(([l,c],k)=>{if(vis.has(k))it.push(`<div><img src="${svgURL(pinSVG(c))}" alt="">${l}</div>`);});}
-    else it.push(`<div><img src="${svgURL(pinSVG(NEUTRAL))}" alt="">Texas Roadhouse</div>`);
-    if(z<7.5)it.push(`<div><i style="border-radius:50%;background:#A5022F;border:2px solid #D0BC9B;width:16px;height:16px"></i>Store cluster (count)</div>`);}
+    const dot=z<DOT_FADE[1]-.4,sw=c=>dot?`<i style="border-radius:50%;background:${c};border:1px solid rgba(18,14,12,.9);width:8px;height:8px;margin:0 4px"></i>`:`<img src="${svgURL(pinSVG(c))}" alt="">`;
+    if(RATE_ON()){it.push(`<b>Texas Roadhouse · Google rating</b>`);const vis=new Set(vs.map(s=>rcls(s.r)));RAMP.forEach(([l,c],k)=>{if(vis.has(k))it.push(`<div>${sw(c)}${l}</div>`);});}
+    else it.push(`<div>${sw(NEUTRAL)}Texas Roadhouse${dot?" store":""}</div>`);}
   if(markers.length)it.push(`<div><i style="border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:var(--panel);border:2.5px solid var(--rec);width:14px;height:14px"></i>Prospect (national rank)</div>`);
   if(on.recs&&recallMode==="cand"){const t=PR.slice(0,25),o=PR.slice(25);if(anyIn(t.map(c=>[c.lo,c.la])))it.push(`<div><i style="border-radius:50%;border:2px solid var(--rec);background:rgba(165,2,47,.38)"></i>Top 25 by your screen</div>`);if(anyIn(o.map(c=>[c.lo,c.la])))it.push(`<div><i style="border-radius:50%;border:2px solid var(--rec);background:rgba(165,2,47,.22);width:10px;height:10px;margin:0 3px"></i>Other matching county</div>`);}
   else if(on.recs&&anyIn(REC.map(r=>[r.lon,r.lat])))it.push(`<div><i style="border-radius:50%;border:2px solid var(--rec);background:rgba(165,2,47,.35)"></i>Prospective location</div>`);
   if(on.ann){const vk=STAGES.map((_,k)=>STF.stages.has(k)&&anyIn(ANN.filter(a=>stage(a.status)===k).map(a=>[a.lon,a.lat])));
     if(STG_ON())STAGES.forEach(([l,c],k)=>{if(vk[k])it.push(`<div>${ringSw(c,16)}Upcoming · ${l.toLowerCase()}</div>`);});else if(vk.some(Boolean))it.push(`<div>${ringSw(NEUTRAL,16)}Upcoming store (pipeline)</div>`);}
-  if(on.hl&&anyIn(hlGJ.features.map(f=>f.geometry.coordinates)))it.push(`<div><i style="border-radius:50%;border:3px solid #E69F00"></i>Over capacity</div>`);
+  if(on.hl&&map.getZoom()>=5&&anyIn(hlGJ.features.map(f=>f.geometry.coordinates)))it.push(`<div><i style="border-radius:50%;border:3px solid #E69F00"></i>Over capacity</div>`);
   if(on.near&&ringGJ.features.length){it.push(`<div><i style="border-radius:50%;border:3px solid #A5022F;width:14px;height:14px"></i>Selected store</div><div><i style="border-radius:50%;border:1.6px dashed #D0BC9B;width:14px;height:14px"></i>5 / 10 / 25 km rings</div>`);
     const nb=[...new Set(nearGJ.features.map(f=>f.properties.c))];if(nb.length)it.push(`<b style="display:block;margin-top:6px">Rivals ≤25 km</b>`+CODES.filter(c=>nb.includes(c)).map(c=>`<div><img src="${badgeURL(c)}" alt="">${CB[c].short}</div>`).join(""));}
   if(cur==="compete"){const vb=CODES.filter(c=>CMP.has(c)&&anyIn(D.comps.filter(x=>x[0]===c).map(x=>[x[2],x[1]])));
-    if(vb.length)it.push(`<b style="display:block;margin-top:6px">Compared brands</b>`+vb.map(c=>`<div><img src="${badgeURL(c)}" alt="">${CB[c].short}</div>`).join(""));}
+    if(vb.length)it.push(`<b style="display:block;margin-top:6px">Compared brands</b>`+vb.map(c=>`<div>${map.getZoom()<6.8?`<i style="border-radius:50%;background:${CB[c].col};border:1px solid #111;width:8px;height:8px;margin:0 4px"></i>`:`<img src="${badgeURL(c)}" alt="">`}${CB[c].short}</div>`).join(""));}
   if(SC.st)it.push(`<div style="margin-top:6px"><i style="background:rgba(165,2,47,.18);border:2px solid #A5022F;border-radius:3px"></i>Selected state: ${esc(STB[SC.st].n)}</div>`);
   {const cl=ctyLegend();if(cl)it.push(cl);}
   it.push(`<div class="lnote">${cur==="next"?"Tap a county to open it":"Tap a state to filter"} · stats follow the map</div>`);
@@ -1154,7 +1155,7 @@ function topoToGeo(t){const o=t.objects.c,[sx,sy]=t.transform.scale,[tx,ty]=t.tr
   const arcs=t.arcs.map(a=>{let x=0,y=0;return a.map(([dx,dy])=>{x+=dx;y+=dy;return [x*sx+tx,y*sy+ty];});});
   const ring=r=>{const out=[];r.forEach((i,k)=>{const a=i<0?arcs[~i].slice().reverse():arcs[i];out.push(...(k?a.slice(1):a));});return out;};
   return {type:"FeatureCollection",features:o.geometries.filter(g=>g.type).map(g=>({type:"Feature",properties:g.properties,geometry:g.type==="Polygon"?{type:"Polygon",coordinates:g.arcs.map(ring)}:{type:"MultiPolygon",coordinates:g.arcs.map(p=>p.map(ring))}}))};}
-function ctyLoad(){if(CTYP)return CTYP;CTYP=fetch("counties.json?v=6.8").then(r=>{if(!r.ok)throw new Error(r.status);return r.json();}).then(t=>{CTYGJ=topoToGeo(t);CTYGJ.features.forEach(f=>CTYPOP[f.properties.id]=f.properties.p);addCty();}).catch(e=>{console.warn("County boundaries unavailable:",e&&e.message);});return CTYP;}
+function ctyLoad(){if(CTYP)return CTYP;CTYP=fetch("counties.json?v=6.9").then(r=>{if(!r.ok)throw new Error(r.status);return r.json();}).then(t=>{CTYGJ=topoToGeo(t);CTYGJ.features.forEach(f=>CTYPOP[f.properties.id]=f.properties.p);addCty();}).catch(e=>{console.warn("County boundaries unavailable:",e&&e.message);});return CTYP;}
 function addCty(){if(!CTYGJ){ctyLoad();return;}if(!map.getLayer("states-dim")||map.getSource("cty"))return;const dark=theme==="dark";
   map.addSource("cty",{type:"geojson",data:CTYGJ,promoteId:"id"});
   map.addLayer({id:"cty-fill",type:"fill",source:"cty",layout:{visibility:"none"},paint:{"fill-color":CTYC.s1,"fill-opacity":0,"fill-antialias":false}},"states-dim");
@@ -1174,7 +1175,9 @@ function ctySync(){if(!map.getSource("cty")||!map.getLayer("cty-fill"))return;co
     per.forEach(([id,v])=>map.setFeatureState({source:"cty",id},{m:1,v:Math.min(1,v/cap)}));CTYLEG={mode,lo:vals[0]??null,cap,hi:vals[vals.length-1]??null,n:per.length};}
   if(ctyMode!==mode){const a=mode==="p"?[CTYC.p0,CTYC.p1]:[CTYC.s0,CTYC.s1];
     map.setPaintProperty("cty-fill","fill-color",["case",["==",["feature-state","m"],1],["interpolate",["linear"],["coalesce",["feature-state","v"],0],0,a[0],1,a[1]],CTYC.dim]);
-    map.setPaintProperty("cty-fill","fill-opacity",["case",["==",["feature-state","m"],1],mode==="p"?(dark?.72:.55):(dark?.6:.5),["==",["feature-state","m"],0],dark?.07:.1,0]);ctyMode=mode;}}
+    const fo=k=>["case",["==",["feature-state","m"],1],(mode==="p"?(dark?.72:.55):(dark?.6:.5))*k,["==",["feature-state","m"],0],(dark?.07:.1)*k,0];
+    /* v6.9: full strength at country/state zoom, softer once you are zoomed into a metro so streets and pins read */
+    map.setPaintProperty("cty-fill","fill-opacity",["interpolate",["linear"],["zoom"],5,fo(1),9,fo(.5)]);ctyMode=mode;}}
 function ctyLegend(){if(!CTYLEG||!map.getLayer("cty-fill")||map.getLayoutProperty("cty-fill","visibility")==="none"||CTYLEG.lo==null)return "";
   const p=CTYLEG.mode==="p",a=p?[CTYC.p0,CTYC.p1]:[CTYC.s0,CTYC.s1],lo=p?Math.round(CTYLEG.lo):f1(CTYLEG.lo),hi=p?Math.round(CTYLEG.hi):`${f1(CTYLEG.cap)}+`;
   return `<b style="display:block;margin-top:6px">County fill</b><div class="cleg"><span>${lo}</span><i style="background:linear-gradient(90deg,${a[0]},${a[1]})"></i><span>${hi}</span></div><div class="cleg-l">${p?`Prospect score · ${fmt(CTYLEG.n)} matching counties`:"Texas Roadhouse stores per 100k residents"}</div>`;}
